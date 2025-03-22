@@ -1,32 +1,28 @@
-import { IsString, IsNumber, Min, Max, IsNotEmpty, IsDate, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsArray, IsOptional, IsDateString, IsNumber, Min, Max } from 'class-validator';
 
 export class CreateMedicationDto {
   @IsString()
-  @IsNotEmpty()
   name: string;
 
   @IsString()
-  @IsNotEmpty()
   dose: string;
 
-  @IsString()
-  @IsNotEmpty()
-  time: string;
+  @IsArray()
+  @IsString({ each: true })
+  times: string[];
 
   @IsNumber()
   @Min(1)
   @Max(30)
   duration: number;
 
-  @Type(() => Date)
-  @IsDate()
-  startDate: Date;
+  @IsDateString()
+  startDate: string;
 
-  @Type(() => Date)
-  @IsDate()
-  endDate: Date;
+  @IsDateString()
+  endDate: string;
 
   @IsOptional()
-  takenDates?: string[];
+  @IsArray()
+  takenDates?: { date: string; times: string[] }[];
 } 

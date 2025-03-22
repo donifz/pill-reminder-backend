@@ -28,8 +28,12 @@ export class MedicationsController {
   }
 
   @Patch(':id/toggle')
-  toggleTaken(@Param('id') id: string) {
-    return this.medicationsService.toggleTaken(id);
+  toggleTaken(
+    @Param('id') id: string,
+    @Body('date') date: string,
+    @Body('time') time: string,
+  ) {
+    return this.medicationsService.toggleTaken(id, date, time);
   }
 
   @Delete(':id')

@@ -11,8 +11,8 @@ export class Medication {
   @Column()
   dose: string;
 
-  @Column({ type: 'time' })
-  time: string;
+  @Column('simple-array')
+  times: string[];
 
   @Column()
   duration: number;
@@ -27,7 +27,7 @@ export class Medication {
   taken: boolean;
 
   @Column('json', { nullable: true })
-  takenDates: string[];
+  takenDates: { date: string; times: string[] }[];
 
   @CreateDateColumn()
   createdAt: Date;

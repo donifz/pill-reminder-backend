@@ -13,14 +13,17 @@ export class MedicationsService {
   ) {}
 
   create(createMedicationDto: CreateMedicationDto) {
-    const medication = this.medicationsRepository.create(createMedicationDto);
+    const medication = this.medicationsRepository.create({
+      ...createMedicationDto,
+      takenDates: [],
+    });
     return this.medicationsRepository.save(medication);
   }
 
   findAll() {
     return this.medicationsRepository.find({
       order: {
-        time: 'ASC',
+        times: 'ASC',
         createdAt: 'DESC',
       },
     });
@@ -31,16 +34,47 @@ export class MedicationsService {
   }
 
   async update(id: string, updateMedicationDto: UpdateMedicationDto) {
-    await this.medicationsRepository.update(id, updateMedicationDto);
-    return this.findOne(id);
-  }
-
-  async toggleTaken(id: string) {
     const medication = await this.findOne(id);
     if (!medication) {
       return null;
     }
-    medication.taken = !medication.taken;
+    
+    const updatedMedication = {
+      ...medication,
+      ...updateMedicationDto,
+    };
+    
+    return this.medicationsRepository.save(updatedMedication);
+  }
+
+  async toggleTaken(id: string, date: string, time: string) {
+    const medication = await this.findOne(id);
+    if (!medication) {
+      return null;
+    }
+
+    const takenDates = medication.takenDates || [];
+    const existingDateIndex = takenDates.findIndex(td => td.date === date);
+
+    if (existingDateIndex >= 0) {
+      const existingDate = takenDates[existingDateIndex];
+      if (existingDate.times.includes(time)) {
+        existingDate.times = existingDate.times.filter(t => t !== time);
+        if (existingDate.times.length === 0) {
+          takenDates.splice(existingDateIndex, 1);
+        }
+      } else {
+        existingDate.times.push(time);
+        existingDate.times.sort();
+      }
+    } else {
+      takenDates.push({ date, times: [time] });
+      takenDates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+
+    medication.taken = takenDates.length > 0;
+    medication.takenDates = takenDates;
+
     return this.medicationsRepository.save(medication);
   }
 
