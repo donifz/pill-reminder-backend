@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Medication } from './entities/medication.entity';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { UpdateMedicationDto } from './dto/update-medication.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class MedicationsService {
@@ -12,16 +13,18 @@ export class MedicationsService {
     private medicationsRepository: Repository<Medication>,
   ) {}
 
-  create(createMedicationDto: CreateMedicationDto) {
+  create(dto: CreateMedicationDto, user: User) {
     const medication = this.medicationsRepository.create({
-      ...createMedicationDto,
+      ...dto,
       takenDates: [],
+      user,
     });
     return this.medicationsRepository.save(medication);
   }
 
-  findAll() {
+  findAll(user: User) {
     return this.medicationsRepository.find({
+      where: { user: { id: user.id } },
       order: {
         times: 'ASC',
         createdAt: 'DESC',

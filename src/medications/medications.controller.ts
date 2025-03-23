@@ -1,20 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { MedicationsService } from './medications.service';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { UpdateMedicationDto } from './dto/update-medication.dto';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('medications')
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
   @Post()
-  create(@Body() createMedicationDto: CreateMedicationDto) {
-    return this.medicationsService.create(createMedicationDto);
+  create(@Body() createMedicationDto: CreateMedicationDto, @GetUser() user: User) {
+    return this.medicationsService.create(createMedicationDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.medicationsService.findAll();
+  findAll(@GetUser() user: User) {    
+    return this.medicationsService.findAll(user);
   }
 
   @Get(':id')
