@@ -22,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
     }),
     MedicationsModule,
+    UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
