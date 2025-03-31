@@ -39,8 +39,11 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// For Vercel serverless
+// For production (Render)
 export default async function handler(req: any, res: any) {
   const app = await bootstrap();
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Application is running on port: ${port}`);
   return app(req, res);
 }
