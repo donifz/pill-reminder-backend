@@ -12,6 +12,7 @@ async function bootstrap() {
       'http://localhost:8081',
       'http://localhost:8082',
       'http://localhost:19006',
+      process.env.FRONTEND_URL || 'https://medicine-reminder-frontend.onrender.com',
     ],
     credentials: true,
   });
@@ -23,7 +24,9 @@ async function bootstrap() {
     }),
   );
 
-  // Use port 3001 for the backend
-  await app.listen(3001);
+  // Use port from Render's environment or fallback to 3001
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
