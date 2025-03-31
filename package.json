@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "node_modules/.bin/nest build",
-    "postbuild": "NODE_ENV=production npm run migration:run",
+    "postbuild": "npm run verify-db && npm run migration:run",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start --port $PORT",
     "start:dev": "nest start --watch",
@@ -20,9 +20,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "NODE_ENV=production npm run typeorm -- migration:generate -d src/config/typeorm.config.ts",
-    "migration:run": "NODE_ENV=production npm run typeorm -- migration:run -d src/config/typeorm.config.ts",
-    "migration:revert": "NODE_ENV=production npm run typeorm -- migration:revert -d src/config/typeorm.config.ts"
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/typeorm.config.ts",
+    "migration:run": "npm run typeorm -- migration:run -d src/config/typeorm.config.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/config/typeorm.config.ts",
+    "verify-db": "ts-node scripts/verify-db.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

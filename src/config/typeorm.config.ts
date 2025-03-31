@@ -5,6 +5,10 @@ config();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
+
 export default new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL,
@@ -14,4 +18,7 @@ export default new DataSource({
     rejectUnauthorized: false
   } : false,
   logging: !isProduction,
+  extra: {
+    max: 20, // Maximum number of connections in the pool
+  }
 }); 
