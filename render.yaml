@@ -31,8 +31,11 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         value: https://medicine-reminder-frontend.onrender.com
+      - key: PORT
+        value: 10000
 
 databases:
   - name: medicine_reminder_db
     databaseName: medicine_reminder
-    user: medicine_reminder_user 
+    user: medicine_reminder_user
+    plan: free 
