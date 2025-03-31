@@ -1,17 +1,17 @@
 import { DataSource } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 
 config();
 
-const configService = new ConfigService();
+const isProduction = process.env.NODE_ENV === 'production';
 
 export default new DataSource({
   type: 'postgres',
-  url: configService.get('DATABASE_URL'),
+  url: process.env.DATABASE_URL,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  ssl: {
+  ssl: isProduction ? {
     rejectUnauthorized: false
-  }
+  } : false,
+  logging: !isProduction,
 }); 
