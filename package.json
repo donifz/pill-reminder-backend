@@ -6,8 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "prebuild": "ts-node scripts/check-env.ts",
     "build": "node_modules/.bin/nest build",
-    "postbuild": "npm run verify-db && npm run migration:run",
+    "postbuild": "NODE_ENV=production npm run verify-db && NODE_ENV=production npm run migration:run",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start --port $PORT",
     "start:dev": "nest start --watch",
