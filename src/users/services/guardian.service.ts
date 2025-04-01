@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -7,6 +7,8 @@ import { randomBytes } from 'crypto';
 
 @Injectable()
 export class GuardianService {
+  private readonly logger = new Logger(GuardianService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -56,18 +58,37 @@ export class GuardianService {
   }
 
   async acceptInvitation(token: string, guardianId: string): Promise<Guardian> {
+    this.logger.log(`Looking for guardian with token: ${token} and guardianId: ${guardianId}`);
+    
+    // First, let's check if there's any guardian with this token
+    const guardiansWithToken = await this.guardianRepository.find({
+      where: {
+        invitationToken: token,
+      },
+      relations: ['guardian', 'user'],
+    });
+    
+    this.logger.log(`Found ${guardiansWithToken.length} guardians with this token`);
+    guardiansWithToken.forEach(g => {
+      this.logger.log(`Guardian found: id=${g.id}, guardianId=${g.guardian.id}, userId=${g.user.id}`);
+    });
+
+    // Now try to find the specific guardian
     const guardian = await this.guardianRepository.findOne({
       where: {
         invitationToken: token,
         guardian: { id: guardianId },
       },
+      relations: ['guardian', 'user'],
     });
 
     if (!guardian) {
+      this.logger.error(`No guardian found with token: ${token} and guardianId: ${guardianId}`);
       throw new NotFoundException('Invalid invitation token');
     }
 
     if (guardian.invitationExpiresAt < new Date()) {
+      this.logger.error(`Invitation has expired for token: ${token}`);
       throw new BadRequestException('Invitation has expired');
     }
 
@@ -75,6 +96,7 @@ export class GuardianService {
     guardian.invitationToken = null;
     guardian.invitationExpiresAt = null;
 
+    this.logger.log(`Accepting invitation for guardian: ${guardian.id}`);
     return this.guardianRepository.save(guardian);
   }
 
