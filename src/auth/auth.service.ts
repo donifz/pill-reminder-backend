@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { Guardian } from 'src/users/entities/guardian.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -12,6 +13,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Guardian)
+    private guardianRepository: Repository<Guardian>,
     private jwtService: JwtService,
   ) {}
 
@@ -28,6 +31,18 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    // Get guardian relationships
+    const guardians = await this.guardianRepository.find({
+      where: { user: { id: user.id } },
+      relations: ['guardian'],
+    });
+
+    const guardianFor = await this.guardianRepository.find({
+      where: { guardian: { id: user.id } },
+      relations: ['user'],
+    });
+
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
@@ -35,6 +50,18 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        guardians: guardians.map(g => ({
+          id: g.guardian.id,
+          name: g.guardian.name,
+          email: g.guardian.email,
+          isAccepted: g.isAccepted,
+        })),
+        guardianFor: guardianFor.map(g => ({
+          id: g.user.id,
+          name: g.user.name,
+          email: g.user.email,
+          isAccepted: g.isAccepted,
+        })),
       },
     };
   }
@@ -59,6 +86,8 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        guardians: [],
+        guardianFor: [],
       },
     };
   }

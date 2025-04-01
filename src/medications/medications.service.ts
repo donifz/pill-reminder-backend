@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Medication } from './entities/medication.entity';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { UpdateMedicationDto } from './dto/update-medication.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Guardian } from 'src/users/entities/guardian.entity';
 
 @Injectable()
 export class MedicationsService {
   constructor(
     @InjectRepository(Medication)
     private medicationsRepository: Repository<Medication>,
+    @InjectRepository(Guardian)
+    private guardianRepository: Repository<Guardian>,
   ) {}
 
   create(dto: CreateMedicationDto, user: User) {
@@ -22,25 +25,81 @@ export class MedicationsService {
     return this.medicationsRepository.save(medication);
   }
 
-  findAll(user: User) {
-    return this.medicationsRepository.find({
+  async findAll(user: User) {
+    // Get medications for the user
+    const userMedications = await this.medicationsRepository.find({
       where: { user: { id: user.id } },
       order: {
         times: 'ASC',
         createdAt: 'DESC',
       },
     });
+
+    // Get medications for users where the current user is a guardian
+    const guardianRelationships = await this.guardianRepository.find({
+      where: { 
+        guardian: { id: user.id },
+        isAccepted: true,
+      },
+      relations: ['user'],
+    });
+
+    const guardianMedications = await Promise.all(
+      guardianRelationships.map(async (relationship) => {
+        const medications = await this.medicationsRepository.find({
+          where: { user: { id: relationship.user.id } },
+          order: {
+            times: 'ASC',
+            createdAt: 'DESC',
+          },
+        });
+        return {
+          user: {
+            id: relationship.user.id,
+            name: relationship.user.name,
+            email: relationship.user.email,
+          },
+          medications,
+        };
+      }),
+    );
+
+    return {
+      userMedications,
+      guardianMedications,
+    };
   }
 
-  findOne(id: string) {
-    return this.medicationsRepository.findOneBy({ id });
-  }
+  async findOne(id: string, user: User) {
+    const medication = await this.medicationsRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
-  async update(id: string, updateMedicationDto: UpdateMedicationDto) {
-    const medication = await this.findOne(id);
     if (!medication) {
-      return null;
+      throw new NotFoundException('Medication not found');
     }
+
+    // Check if user owns the medication or is a guardian
+    if (medication.user.id !== user.id) {
+      const guardianRelationship = await this.guardianRepository.findOne({
+        where: {
+          guardian: { id: user.id },
+          user: { id: medication.user.id },
+          isAccepted: true,
+        },
+      });
+
+      if (!guardianRelationship) {
+        throw new ForbiddenException('You do not have access to this medication');
+      }
+    }
+
+    return medication;
+  }
+
+  async update(id: string, updateMedicationDto: UpdateMedicationDto, user: User) {
+    const medication = await this.findOne(id, user);
     
     const updatedMedication = {
       ...medication,
@@ -50,11 +109,8 @@ export class MedicationsService {
     return this.medicationsRepository.save(updatedMedication);
   }
 
-  async toggleTaken(id: string, date: string, time: string) {
-    const medication = await this.findOne(id);
-    if (!medication) {
-      return null;
-    }
+  async toggleTaken(id: string, date: string, time: string, user: User) {
+    const medication = await this.findOne(id, user);
 
     const takenDates = medication.takenDates || [];
     const existingDateIndex = takenDates.findIndex(td => td.date === date);
@@ -81,7 +137,8 @@ export class MedicationsService {
     return this.medicationsRepository.save(medication);
   }
 
-  remove(id: string) {
-    return this.medicationsRepository.delete(id);
+  async remove(id: string, user: User) {
+    const medication = await this.findOne(id, user);
+    return this.medicationsRepository.remove(medication);
   }
 } 

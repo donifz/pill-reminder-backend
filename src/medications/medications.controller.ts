@@ -22,13 +22,17 @@ export class MedicationsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.medicationsService.findOne(id);
+  findOne(@Param('id') id: string, @GetUser() user: User) {
+    return this.medicationsService.findOne(id, user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMedicationDto: UpdateMedicationDto) {
-    return this.medicationsService.update(id, updateMedicationDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateMedicationDto: UpdateMedicationDto,
+    @GetUser() user: User,
+  ) {
+    return this.medicationsService.update(id, updateMedicationDto, user);
   }
 
   @Patch(':id/toggle')
@@ -36,12 +40,13 @@ export class MedicationsController {
     @Param('id') id: string,
     @Body('date') date: string,
     @Body('time') time: string,
+    @GetUser() user: User,
   ) {
-    return this.medicationsService.toggleTaken(id, date, time);
+    return this.medicationsService.toggleTaken(id, date, time, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.medicationsService.remove(id);
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.medicationsService.remove(id, user);
   }
 } 
