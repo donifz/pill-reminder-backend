@@ -21,8 +21,10 @@ docker system prune -f
 # Pull the latest changes
 git pull origin main
 
-# Build the new image
-docker build -t pill-reminder-backend .
+# Build the new image with environment variables
+docker build \
+  --build-arg DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pill_reminder" \
+  -t pill-reminder-backend .
 
 # Run database migrations with production environment
 docker run --rm \

@@ -15,6 +15,9 @@ COPY . .
 
 # Set production environment for build
 ENV NODE_ENV=production
+# Accept build arguments
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/pill_reminder}
 
 # Build the application
 RUN yarn build
