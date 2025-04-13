@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "ts-node scripts/check-env.ts",
     "build": "node_modules/.bin/nest build",
-    "postbuild": "NODE_ENV=production npm run migration:run",
+    "postbuild": "echo 'Build completed successfully'",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start --port $PORT",
     "start:dev": "nest start --watch",

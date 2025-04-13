@@ -26,14 +26,25 @@ docker build \
   --build-arg DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pill_reminder" \
   -t pill-reminder-backend .
 
+# Start the database container first
+echo "Starting database container..."
+docker-compose --env-file .env.production up -d db
+
+# Wait for the database to be ready
+echo "Waiting for database to be ready..."
+sleep 10
+
 # Run database migrations with production environment
+echo "Running database migrations..."
 docker run --rm \
   --env-file .env.production \
   --memory=512m \
+  --network pill-reminder-app-network \
   pill-reminder-backend \
   yarn migration:run
 
 # Start the application with resource limits and production environment
+echo "Starting application..."
 docker-compose --env-file .env.production up -d
 
 # Clean up unused images
