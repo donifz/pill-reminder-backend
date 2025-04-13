@@ -23,7 +23,7 @@ git pull origin main
 
 # Build the new image with environment variables
 docker build \
-  --build-arg DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pill_reminder" \
+  --build-arg DATABASE_URL="postgresql://postgres:postgres@db:5432/pill_reminder" \
   -t pill-reminder-backend .
 
 # Start the database container first
