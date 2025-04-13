@@ -7,11 +7,14 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-# Install dependencies
+# Install ALL dependencies (including devDependencies)
 RUN yarn install --frozen-lockfile
 
-# Copy source code
+# Copy source code and env files
 COPY . .
+
+# Set production environment for build
+ENV NODE_ENV=production
 
 # Build the application
 RUN yarn build
@@ -26,8 +29,9 @@ COPY package*.json ./
 COPY yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 
-# Copy built application from builder stage
+# Copy built application and env files from builder stage
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/.env.production ./.env.production
 
 # Expose the port the app runs on
 EXPOSE 3000
