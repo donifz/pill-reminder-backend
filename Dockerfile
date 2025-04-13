@@ -10,14 +10,14 @@ COPY yarn.lock ./
 # Install ALL dependencies (including devDependencies)
 RUN yarn install --frozen-lockfile
 
-# Copy source code and env files
+# Copy source code
 COPY . .
 
 # Set production environment for build
 ENV NODE_ENV=production
 # Accept build arguments
 ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/pill_reminder}
+ENV DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/pill_reminder}
 
 # Build the application
 RUN yarn build
@@ -32,9 +32,8 @@ COPY package*.json ./
 COPY yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 
-# Copy built application and env files from builder stage
+# Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/.env.production ./.env.production
 
 # Expose the port the app runs on
 EXPOSE 3000
