@@ -16,9 +16,7 @@ export default registerAs('database', () => {
       entities: ['dist/**/*.entity{.ts,.js}'],
       migrations: ['dist/migrations/*{.ts,.js}'],
       synchronize: true, // Never use synchronize in production
-      ssl: isProduction ? {
-        rejectUnauthorized: false
-      } : false,
+      ssl: false, // Disable SSL
       logging: !isProduction,
       migrationsRun: true, // Automatically run migrations on startup
       migrationsTableName: 'migrations', // Name of the migrations table
@@ -36,9 +34,7 @@ export default registerAs('database', () => {
     entities: ['dist/**/*.entity{.ts,.js}'],
     migrations: ['dist/migrations/*{.ts,.js}'],
     synchronize: true, // Never use synchronize in production
-    ssl: isProduction ? {
-      rejectUnauthorized: false
-    } : false,
+    ssl: false, // Disable SSL
     logging: !isProduction,
     migrationsRun: true, // Automatically run migrations on startup
     migrationsTableName: 'migrations', // Name of the migrations table
