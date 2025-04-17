@@ -16,6 +16,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  fcmToken: string;
+
   @OneToMany(() => Medication, medicine => medicine.user)
   medicines: Medication[];
 

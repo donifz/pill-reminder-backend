@@ -27,7 +27,7 @@ export class Medication {
   @Column({ default: false })
   taken: boolean;
 
-  @Column('json', { nullable: true })
+  @Column('json', { name: 'takendates', nullable: true })
   takenDates: { date: string; times: string[] }[];
 
   @ManyToOne(() => User, user => user.medicines, { onDelete: 'CASCADE' })

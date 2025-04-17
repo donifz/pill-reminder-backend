@@ -141,4 +141,19 @@ export class MedicationsService {
     const medication = await this.findOne(id, user);
     return this.medicationsRepository.remove(medication);
   }
+
+  async findMedicationsByTime(time: string): Promise<Medication[]> {
+    const today = new Date().toISOString().split('T')[0];
+    
+    return this.medicationsRepository
+      .createQueryBuilder('medication')
+      .leftJoinAndSelect('medication.user', 'user')
+      .where('medication.times LIKE :time', { time: `%${time}%` })
+      .andWhere('medication.startDate <= :today', { today })
+      .andWhere('medication.endDate >= :today', { today })
+      .andWhere('(medication.takendates IS NULL OR NOT medication.takendates::jsonb @> :takenDate)', {
+        takenDate: JSON.stringify({ date: today, times: [time] }),
+      })
+      .getMany();
+  }
 } 
