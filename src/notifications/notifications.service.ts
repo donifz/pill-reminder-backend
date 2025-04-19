@@ -19,11 +19,17 @@ export class NotificationsService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async checkAndSendNotifications() {
+    // Get current time in UTC
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const utcHours = now.getUTCHours();
+    const utcMinutes = now.getUTCMinutes();
+    
+    // Convert to local time (assuming UTC-4 for EC2)
+    const localHours = (utcHours - 4 + 24) % 24;
+    const currentTime = `${localHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
     
     try {
-      this.logger.log(`[${currentTime}] Starting notification check...`);
+      this.logger.log(`[UTC: ${utcHours}:${utcMinutes}] [Local: ${currentTime}] Starting notification check...`);
       
       // Get all medications that need notifications at current time
       const medications = await this.medicationService.findMedicationsByTime(currentTime);
