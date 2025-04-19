@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Medication } from './entities/medication.entity';
@@ -9,6 +9,8 @@ import { Guardian } from 'src/users/entities/guardian.entity';
 
 @Injectable()
 export class MedicationsService {
+  private readonly logger = new Logger(MedicationsService.name);
+
   constructor(
     @InjectRepository(Medication)
     private medicationsRepository: Repository<Medication>,
@@ -145,15 +147,58 @@ export class MedicationsService {
   async findMedicationsByTime(time: string): Promise<Medication[]> {
     const today = new Date().toISOString().split('T')[0];
     
-    return this.medicationsRepository
+    this.logger.log(`[DEBUG] Finding medications for time: ${time} on date: ${today}`);
+    
+    // First, let's check all medications to see what we have
+    const allMedications = await this.medicationsRepository.find();
+    this.logger.log(`[DEBUG] Total medications in database: ${allMedications.length}`);
+    
+    allMedications.forEach(med => {
+      this.logger.log(`[DEBUG] Medication: ${med.name}, Times: ${med.times.join(', ')}, Start: ${med.startDate}, End: ${med.endDate}`);
+    });
+    
+    // Now let's build the query step by step to see where medications are being filtered out
+    let query = this.medicationsRepository
       .createQueryBuilder('medication')
-      .leftJoinAndSelect('medication.user', 'user')
+      .leftJoinAndSelect('medication.user', 'user');
+    
+    // Check medications with matching time
+    const timeQuery = query.clone()
+      .where('medication.times LIKE :time', { time: `%${time}%` });
+    const timeMatches = await timeQuery.getMany();
+    this.logger.log(`[DEBUG] Medications matching time ${time}: ${timeMatches.length}`);
+    
+    // Check medications within date range
+    const dateQuery = query.clone()
+      .where('medication.startDate <= :today', { today })
+      .andWhere('medication.endDate >= :today', { today });
+    const dateMatches = await dateQuery.getMany();
+    this.logger.log(`[DEBUG] Medications within date range: ${dateMatches.length}`);
+    
+    // Check medications not taken today
+    const takenDate = JSON.stringify({ date: today, times: [time] });
+    const notTakenQuery = query.clone()
+      .where('(medication.takendates IS NULL OR NOT medication.takendates::jsonb @> :takenDate)', {
+        takenDate,
+      });
+    const notTakenMatches = await notTakenQuery.getMany();
+    this.logger.log(`[DEBUG] Medications not taken today: ${notTakenMatches.length}`);
+    
+    // Now run the complete query
+    const medications = await query
       .where('medication.times LIKE :time', { time: `%${time}%` })
       .andWhere('medication.startDate <= :today', { today })
       .andWhere('medication.endDate >= :today', { today })
       .andWhere('(medication.takendates IS NULL OR NOT medication.takendates::jsonb @> :takenDate)', {
-        takenDate: JSON.stringify({ date: today, times: [time] }),
+        takenDate,
       })
       .getMany();
+    
+    this.logger.log(`[DEBUG] Final medications found: ${medications.length}`);
+    medications.forEach(med => {
+      this.logger.log(`[DEBUG] Final medication: ${med.name}, Times: ${med.times.join(', ')}, Start: ${med.startDate}, End: ${med.endDate}`);
+    });
+    
+    return medications;
   }
 } 
