@@ -20,20 +20,22 @@ export class NotificationsService {
   @Cron(CronExpression.EVERY_MINUTE)
   async checkAndSendNotifications() {
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const utcHours = now.getUTCHours().toString().padStart(2, '0');
+    const utcMinutes = now.getUTCMinutes().toString().padStart(2, '0');
+    const currentTime = `${utcHours}:${utcMinutes}`;
     
     try {
-      this.logger.log(`[${currentTime}] Starting notification check...`);
+      this.logger.log(`[${currentTime} UTC] Starting notification check...`);
       
       // Get all medications that need notifications at current time
       const medications = await this.medicationService.findMedicationsByTime(currentTime);
       
-      this.logger.log(`[${currentTime}] Found ${medications.length} medications to notify`);
+      this.logger.log(`[${currentTime} UTC] Found ${medications.length} medications to notify`);
       
       // Log each medication's details
       medications.forEach((medication) => {
         this.logger.log(
-          `[${currentTime}] Medication: ${medication.name}, Times: ${medication.times.join(', ')}, User: ${medication.user.id}`,
+          `[${currentTime} UTC] Medication: ${medication.name}, Times: ${medication.times.join(', ')}, User: ${medication.user.id}`,
         );
       });
       
@@ -46,19 +48,19 @@ export class NotificationsService {
         
         if (user?.fcmToken) {
           this.logger.log(
-            `[${currentTime}] Sending notification for medication ${medication.id} to user ${user.id}`,
+            `[${currentTime} UTC] Sending notification for medication ${medication.id} to user ${user.id}`,
           );
           await this.sendNotification(user.fcmToken, medication);
         } else {
           this.logger.warn(
-            `[${currentTime}] No push token found for user ${medication.user.id}`,
+            `[${currentTime} UTC] No push token found for user ${medication.user.id}`,
           );
         }
       }
       
-      this.logger.log(`[${currentTime}] Notification check completed`);
+      this.logger.log(`[${currentTime} UTC] Notification check completed`);
     } catch (error) {
-      this.logger.error(`[${currentTime}] Error in checkAndSendNotifications:`, error);
+      this.logger.error(`[${currentTime} UTC] Error in checkAndSendNotifications:`, error);
     }
   }
 

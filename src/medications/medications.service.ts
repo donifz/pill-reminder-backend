@@ -145,9 +145,12 @@ export class MedicationsService {
   }
 
   async findMedicationsByTime(time: string): Promise<Medication[]> {
-    const today = new Date().toISOString().split('T')[0];
+    // Convert current time to UTC
+    const now = new Date();
+    const utcDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const today = utcDate.toISOString().split('T')[0];
     
-    this.logger.log(`[DEBUG] Finding medications for time: ${time} on date: ${today}`);
+    this.logger.log(`[DEBUG] Finding medications for time: ${time} on date: ${today} (UTC)`);
     
     // First, let's check all medications to see what we have
     const allMedications = await this.medicationsRepository.find();
