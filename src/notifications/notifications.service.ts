@@ -24,9 +24,10 @@ export class NotificationsService {
     const utcHours = now.getUTCHours();
     const utcMinutes = now.getUTCMinutes();
     
-    // Convert to local time (assuming UTC-4 for EC2)
-    const localHours = (utcHours - 4 + 24) % 24;
-    const currentTime = `${localHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
+    // Convert to user's local time (UTC-4)
+    // The server is in UTC-4, and we want to match the user's local time
+    // So we don't need to adjust the time further
+    const currentTime = `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
     
     try {
       this.logger.log(`[UTC: ${utcHours}:${utcMinutes}] [Local: ${currentTime}] Starting notification check...`);
