@@ -23,33 +23,38 @@ export class NotificationsService {
     const now = new Date();
     const utcHours = now.getUTCHours();
     const utcMinutes = now.getUTCMinutes();
-    
+
     // Convert to Kyrgyzstan time (UTC+6)
     const kyrgyzstanHours = (utcHours + 6) % 24;
     const currentTime = `${kyrgyzstanHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
-    
+
     try {
-      this.logger.log(`[UTC: ${utcHours}:${utcMinutes}] [Kyrgyzstan: ${currentTime}] Starting notification check...`);
-      
+      this.logger.log(
+        `[UTC: ${utcHours}:${utcMinutes}] [Kyrgyzstan: ${currentTime}] Starting notification check...`,
+      );
+
       // Get all medications that need notifications at current time
-      const medications = await this.medicationService.findMedicationsByTime(currentTime);
-      
-      this.logger.log(`[${currentTime}] Found ${medications.length} medications to notify`);
-      
+      const medications =
+        await this.medicationService.findMedicationsByTime(currentTime);
+
+      this.logger.log(
+        `[${currentTime}] Found ${medications.length} medications to notify`,
+      );
+
       // Log each medication's details
       medications.forEach((medication) => {
         this.logger.log(
           `[${currentTime}] Medication: ${medication.name}, Times: ${medication.times.join(', ')}, User: ${medication.user.id}`,
         );
       });
-      
+
       for (const medication of medications) {
         // Get user's Expo push token
         const user = await this.usersRepository.findOne({
           where: { id: medication.user.id },
           select: ['id', 'fcmToken'],
         });
-        
+
         if (user?.fcmToken) {
           this.logger.log(
             `[${currentTime}] Sending notification for medication ${medication.id} to user ${user.id}`,
@@ -61,10 +66,13 @@ export class NotificationsService {
           );
         }
       }
-      
+
       this.logger.log(`[${currentTime}] Notification check completed`);
     } catch (error) {
-      this.logger.error(`[${currentTime}] Error in checkAndSendNotifications:`, error);
+      this.logger.error(
+        `[${currentTime}] Error in checkAndSendNotifications:`,
+        error,
+      );
     }
   }
 
@@ -84,10 +92,13 @@ export class NotificationsService {
         priority: 'high',
       };
 
-      this.logger.log(`[${new Date().toISOString()}] Sending Expo push message:`, message);
-      
+      this.logger.log(
+        `[${new Date().toISOString()}] Sending Expo push message:`,
+        message,
+      );
+
       const response = await axios.post(this.EXPO_PUSH_API, message);
-      
+
       this.logger.log(
         `[${new Date().toISOString()}] Successfully sent message:`,
         response.data,
@@ -102,11 +113,63 @@ export class NotificationsService {
 
   async updateFcmToken(userId: string, token: string) {
     try {
-      this.logger.log(`[${new Date().toISOString()}] Updating push token for user ${userId}`);
+      this.logger.log(
+        `[${new Date().toISOString()}] Updating push token for user ${userId}`,
+      );
       await this.usersRepository.update(userId, { fcmToken: token });
       return { success: true };
     } catch (error) {
-      this.logger.error(`[${new Date().toISOString()}] Error updating push token:`, error);
+      this.logger.error(
+        `[${new Date().toISOString()}] Error updating push token:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async sendManualNotification(
+    userId: string,
+    title: string,
+    body: string,
+    data?: Record<string, any>,
+  ) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+        select: ['id', 'fcmToken'],
+      });
+
+      if (!user?.fcmToken) {
+        throw new Error(`No push token found for user ${userId}`);
+      }
+
+      const message = {
+        to: user.fcmToken,
+        sound: 'default',
+        title,
+        body,
+        data: data || {},
+        priority: 'high',
+      };
+
+      this.logger.log(
+        `[${new Date().toISOString()}] Sending manual notification:`,
+        message,
+      );
+
+      const response = await axios.post(this.EXPO_PUSH_API, message);
+
+      this.logger.log(
+        `[${new Date().toISOString()}] Successfully sent manual notification:`,
+        response.data,
+      );
+
+      return { success: true, message: 'Notification sent successfully' };
+    } catch (error) {
+      this.logger.error(
+        `[${new Date().toISOString()}] Error sending manual notification:`,
+        error,
+      );
       throw error;
     }
   }

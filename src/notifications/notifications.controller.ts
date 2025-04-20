@@ -10,10 +10,26 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post('fcm-token')
-  async updateFcmToken(
-    @Body() body: { token: string },
+  async updateFcmToken(@Body() body: { token: string }, @GetUser() user: User) {
+    return this.notificationsService.updateFcmToken(user.id, body.token);
+  }
+
+  @Post('send')
+  async sendNotification(
+    @Body()
+    body: {
+      title: string;
+      body: string;
+      data?: Record<string, any>;
+      userId?: string;
+    },
     @GetUser() user: User,
   ) {
-    return this.notificationsService.updateFcmToken(user.id, body.token);
+    return this.notificationsService.sendManualNotification(
+      body.userId || user.id,
+      body.title,
+      body.body,
+      body.data,
+    );
   }
 } 
