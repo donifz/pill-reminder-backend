@@ -7,6 +7,7 @@ import { MedicationsModule } from './medications/medications.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PharmaciesModule } from './pharmacies/pharmacies.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -26,6 +27,7 @@ import databaseConfig from './config/database.config';
     UsersModule,
     AuthModule,
     NotificationsModule,
+    PharmaciesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
