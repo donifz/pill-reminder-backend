@@ -1,16 +1,64 @@
 import {
   Controller,
   Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   Query,
   BadRequestException,
 } from '@nestjs/common';
 import { PharmaciesService } from './pharmacies.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
+import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
+import { QueryPharmacyDto } from './dto/query-pharmacy.dto';
+import { Pharmacy } from './entities/pharmacy.entity';
 
 @ApiTags('Pharmacies')
+@ApiBearerAuth()
 @Controller('pharmacies')
 export class PharmaciesController {
   constructor(private readonly pharmaciesService: PharmaciesService) {}
+
+  @ApiOperation({ summary: 'Create a new pharmacy' })
+  @ApiResponse({ status: 201, description: 'The pharmacy has been successfully created.', type: Pharmacy })
+  @Post()
+  create(@Body() createPharmacyDto: CreatePharmacyDto) {
+    return this.pharmaciesService.create(createPharmacyDto);
+  }
+
+  @ApiOperation({ summary: 'Get all pharmacies' })
+  @ApiResponse({ status: 200, description: 'Return all pharmacies.', type: [Pharmacy] })
+  @Get()
+  findAll(@Query() query: QueryPharmacyDto) {
+    return this.pharmaciesService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Get a pharmacy by id' })
+  @ApiResponse({ status: 200, description: 'Return the pharmacy.', type: Pharmacy })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.pharmaciesService.findOne(id);
+  }
+
+  @ApiOperation({ summary: 'Update a pharmacy' })
+  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully updated.', type: Pharmacy })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updatePharmacyDto: UpdatePharmacyDto) {
+    return this.pharmaciesService.update(id, updatePharmacyDto);
+  }
+
+  @ApiOperation({ summary: 'Delete a pharmacy' })
+  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully deleted.' })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.pharmaciesService.remove(id);
+  }
 
   @ApiOperation({ summary: 'Get nearby pharmacies' })
   @ApiQuery({ name: 'latitude', required: true, type: 'number', description: 'Latitude coordinate' })

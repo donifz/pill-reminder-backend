@@ -1,21 +1,110 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
-import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
+import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { QueryDoctorDto } from './dto/query-doctor.dto';
 import { Doctor } from './entities/doctor.entity';
-import { DoctorCategory } from './entities/doctor-category.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
+import { DoctorCategory } from './entities/doctor-category.entity';
 
 @ApiTags('Doctors')
-@ApiBearerAuth()
 @Controller('doctors')
-@UseGuards(JwtAuthGuard)
 export class DoctorsController {
   constructor(private readonly doctorsService: DoctorsService) {}
+
+  @ApiOperation({ summary: 'Search doctors (Public)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all doctors matching the search criteria.',
+    type: [Doctor],
+  })
+  @Get('search')
+  async searchDoctors(@Query() query: QueryDoctorDto) {
+    return this.doctorsService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Get doctor by id (Public)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the doctor.',
+    type: Doctor,
+  })
+  @ApiResponse({ status: 404, description: 'Doctor not found.' })
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.doctorsService.findOne(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create a new doctor' })
+  @ApiResponse({
+    status: 201,
+    description: 'The doctor has been successfully created.',
+    type: Doctor,
+  })
+  @Post()
+  async create(@Body() createDoctorDto: CreateDoctorDto) {
+    return this.doctorsService.create(createDoctorDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all doctors' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all doctors.',
+    type: [Doctor],
+  })
+  @Get()
+  async findAll(@Query() query: QueryDoctorDto) {
+    return this.doctorsService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update a doctor' })
+  @ApiResponse({
+    status: 200,
+    description: 'The doctor has been successfully updated.',
+    type: Doctor,
+  })
+  @ApiResponse({ status: 404, description: 'Doctor not found.' })
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateDoctorDto: UpdateDoctorDto,
+  ) {
+    return this.doctorsService.update(id, updateDoctorDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete a doctor' })
+  @ApiResponse({
+    status: 200,
+    description: 'The doctor has been successfully deleted.',
+  })
+  @ApiResponse({ status: 404, description: 'Doctor not found.' })
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.doctorsService.remove(id);
+  }
 
   // Doctor Category endpoints
   @ApiOperation({ summary: 'Create a new doctor category' })
@@ -46,25 +135,6 @@ export class DoctorsController {
   }
 
   // Doctor endpoints
-  @ApiOperation({ summary: 'Create a new doctor' })
-  @ApiResponse({ status: 201, description: 'The doctor has been successfully created.', type: Doctor })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
-  @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
-  async createDoctor(
-    @Body() createDoctorDto: CreateDoctorDto,
-  ): Promise<Doctor> {
-    return this.doctorsService.createDoctor(createDoctorDto);
-  }
-
-  @ApiOperation({ summary: 'Get all doctors' })
-  @ApiResponse({ status: 200, description: 'Return all doctors.', type: [Doctor] })
-  @Get()
-  async findAllDoctors(): Promise<Doctor[]> {
-    return this.doctorsService.findAllDoctors();
-  }
-
   @ApiOperation({ summary: 'Get a doctor by ID' })
   @ApiResponse({ status: 200, description: 'Return the doctor.', type: Doctor })
   @ApiResponse({ status: 404, description: 'Doctor not found.' })

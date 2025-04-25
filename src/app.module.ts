@@ -9,6 +9,10 @@ import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PharmaciesModule } from './pharmacies/pharmacies.module';
 import { DoctorsModule } from './doctors/doctors.module';
+import { MedicinesModule } from './medicines/medicines.module';
+import { CountriesModule } from './countries/countries.module';
+import { PharmacyMedicinesModule } from './pharmacy-medicines/pharmacy-medicines.module';
+import { DeliveriesModule } from './deliveries/deliveries.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -30,6 +34,10 @@ import databaseConfig from './config/database.config';
     NotificationsModule,
     PharmaciesModule,
     DoctorsModule,
+    MedicinesModule,
+    CountriesModule,
+    PharmacyMedicinesModule,
+    DeliveriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,19 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, TreeRepository } from 'typeorm';
+import { BaseService } from '../common/services/base.service';
 import { Doctor } from './entities/doctor.entity';
 import { DoctorCategory } from './entities/doctor-category.entity';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
+import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { QueryDoctorDto } from './dto/query-doctor.dto';
 
 @Injectable()
-export class DoctorsService {
+export class DoctorsService extends BaseService<Doctor> {
   constructor(
     @InjectRepository(Doctor)
-    private doctorsRepository: Repository<Doctor>,
+    private readonly doctorRepository: Repository<Doctor>,
     @InjectRepository(DoctorCategory)
     private categoriesRepository: TreeRepository<DoctorCategory>,
-  ) {}
+  ) {
+    super(doctorRepository);
+  }
 
   // Doctor Category methods
   async createCategory(
@@ -62,22 +67,22 @@ export class DoctorsService {
       );
     }
 
-    const doctor = this.doctorsRepository.create({
+    const doctor = this.doctorRepository.create({
       ...createDoctorDto,
       category,
     });
 
-    return this.doctorsRepository.save(doctor);
+    return this.doctorRepository.save(doctor);
   }
 
   async findAllDoctors(): Promise<Doctor[]> {
-    return this.doctorsRepository.find({
+    return this.doctorRepository.find({
       relations: ['category'],
     });
   }
 
   async findDoctorById(id: string): Promise<Doctor> {
-    const doctor = await this.doctorsRepository.findOne({
+    const doctor = await this.doctorRepository.findOne({
       where: { id },
       relations: ['category'],
     });
@@ -88,9 +93,30 @@ export class DoctorsService {
   }
 
   async findDoctorsByCategory(categoryId: string): Promise<Doctor[]> {
-    return this.doctorsRepository.find({
+    return this.doctorRepository.find({
       where: { category: { id: categoryId } },
       relations: ['category'],
     });
+  }
+
+  async findAll(
+    query: QueryDoctorDto,
+    order = {},
+    page = 1,
+    limit = 10,
+  ) {
+    const where: any = {};
+    
+    if (query.name) {
+      where.name = query.name;
+    }
+    if (query.specialization) {
+      where.specialization = query.specialization;
+    }
+    if (query.countryId) {
+      where.country = { id: query.countryId };
+    }
+
+    return super.findAll(where, order, page, limit);
   }
 } 
