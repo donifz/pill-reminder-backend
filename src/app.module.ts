@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PharmaciesModule } from './pharmacies/pharmacies.module';
+import { DoctorsModule } from './doctors/doctors.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -28,6 +29,7 @@ import databaseConfig from './config/database.config';
     AuthModule,
     NotificationsModule,
     PharmaciesModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

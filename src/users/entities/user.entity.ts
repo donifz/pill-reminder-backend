@@ -1,6 +1,7 @@
 import { Medication } from 'src/medications/entities/medication.entity';
 import { Guardian } from './guardian.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Role } from '../../common/enums/role.enum';
 
 @Entity()
 export class User {
@@ -15,6 +16,13 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER
+  })
+  role: Role;
 
   @Column({ nullable: true })
   fcmToken: string;

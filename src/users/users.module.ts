@@ -5,11 +5,12 @@ import { Guardian } from './entities/guardian.entity';
 import { UsersService } from './users.service';
 import { GuardianService } from './services/guardian.service';
 import { GuardianController } from './controllers/guardian.controller';
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Guardian])],
   providers: [UsersService, GuardianService],
-  controllers: [GuardianController],
+  controllers: [GuardianController, UsersController],
   exports: [UsersService, GuardianService],
 })
 export class UsersModule {} 
