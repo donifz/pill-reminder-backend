@@ -33,31 +33,9 @@ export class PharmaciesController {
   @ApiResponse({ status: 200, description: 'Return all pharmacies.', type: [Pharmacy] })
   @Get()
   findAll(@Query() query: QueryPharmacyDto) {
+    console.log('Received query parameters:', query);
+    
     return this.pharmaciesService.findAll(query);
-  }
-
-  @ApiOperation({ summary: 'Get a pharmacy by id' })
-  @ApiResponse({ status: 200, description: 'Return the pharmacy.', type: Pharmacy })
-  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pharmaciesService.findOne(id);
-  }
-
-  @ApiOperation({ summary: 'Update a pharmacy' })
-  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully updated.', type: Pharmacy })
-  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePharmacyDto: UpdatePharmacyDto) {
-    return this.pharmaciesService.update(id, updatePharmacyDto);
-  }
-
-  @ApiOperation({ summary: 'Delete a pharmacy' })
-  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully deleted.' })
-  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pharmaciesService.remove(id);
   }
 
   @ApiOperation({ summary: 'Get nearby pharmacies' })
@@ -105,6 +83,7 @@ export class PharmaciesController {
     @Query('longitude') longitudeStr: string,
     @Query('radius') radiusStr?: string,
   ) {
+    console.log(`Received latitude: ${latitudeStr}, longitude: ${longitudeStr}, radius: ${radiusStr}`);
     try {
       const latitude = parseFloat(latitudeStr);
       const longitude = parseFloat(longitudeStr);
@@ -129,5 +108,29 @@ export class PharmaciesController {
       }
       throw new BadRequestException('Invalid input parameters');
     }
+  }
+
+  @ApiOperation({ summary: 'Get a pharmacy by id' })
+  @ApiResponse({ status: 200, description: 'Return the pharmacy.', type: Pharmacy })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.pharmaciesService.findOne(id);
+  }
+
+  @ApiOperation({ summary: 'Update a pharmacy' })
+  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully updated.', type: Pharmacy })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updatePharmacyDto: UpdatePharmacyDto) {
+    return this.pharmaciesService.update(id, updatePharmacyDto);
+  }
+
+  @ApiOperation({ summary: 'Delete a pharmacy' })
+  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully deleted.' })
+  @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.pharmaciesService.remove(id);
   }
 } 
