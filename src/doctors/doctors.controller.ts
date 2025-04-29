@@ -38,18 +38,45 @@ export class DoctorsController {
     return this.doctorsService.findAll(query);
   }
 
-  @ApiOperation({ summary: 'Get doctor by id (Public)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return the doctor.',
-    type: Doctor,
-  })
-  @ApiResponse({ status: 404, description: 'Doctor not found.' })
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.doctorsService.findOne(id);
+  // Doctor Category endpoints - Moved before :id route
+  @ApiOperation({ summary: 'Create a new doctor category' })
+  @ApiResponse({ status: 201, description: 'The category has been successfully created.', type: DoctorCategory })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @Post('categories')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async createCategory(
+    @Body() createCategoryDto: CreateDoctorCategoryDto,
+  ): Promise<DoctorCategory> {
+    return this.doctorsService.createCategory(createCategoryDto);
   }
 
+  @ApiOperation({ summary: 'Get all doctor categories' })
+  @ApiResponse({ status: 200, description: 'Return all doctor categories.', type: [DoctorCategory] })
+  @Get('categories')
+  async findAllCategories(): Promise<DoctorCategory[]> {
+    return this.doctorsService.findAllCategories();
+  }
+
+  @ApiOperation({ summary: 'Get a doctor category by ID' })
+  @ApiResponse({ status: 200, description: 'Return the doctor category.', type: DoctorCategory })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
+  @Get('categories/:id')
+  async findCategoryById(@Param('id') id: string): Promise<DoctorCategory> {
+    return this.doctorsService.findCategoryById(id);
+  }
+
+  @ApiOperation({ summary: 'Get doctors by category ID' })
+  @ApiResponse({ status: 200, description: 'Return all doctors in the specified category.', type: [Doctor] })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
+  @Get('category/:categoryId')
+  async findDoctorsByCategory(
+    @Param('categoryId') categoryId: string,
+  ): Promise<Doctor[]> {
+    return this.doctorsService.findDoctorsByCategory(categoryId);
+  }
+
+  // Doctor endpoints
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a new doctor' })
@@ -74,6 +101,14 @@ export class DoctorsController {
   @Get()
   async findAll(@Query() query: QueryDoctorDto) {
     return this.doctorsService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Get a doctor by ID' })
+  @ApiResponse({ status: 200, description: 'Return the doctor.', type: Doctor })
+  @ApiResponse({ status: 404, description: 'Doctor not found.' })
+  @Get(':id')
+  async findDoctorById(@Param('id') id: string): Promise<Doctor> {
+    return this.doctorsService.findDoctorById(id);
   }
 
   @ApiBearerAuth()
@@ -104,52 +139,5 @@ export class DoctorsController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.doctorsService.remove(id);
-  }
-
-  // Doctor Category endpoints
-  @ApiOperation({ summary: 'Create a new doctor category' })
-  @ApiResponse({ status: 201, description: 'The category has been successfully created.', type: DoctorCategory })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
-  @Post('categories')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
-  async createCategory(
-    @Body() createCategoryDto: CreateDoctorCategoryDto,
-  ): Promise<DoctorCategory> {
-    return this.doctorsService.createCategory(createCategoryDto);
-  }
-
-  @ApiOperation({ summary: 'Get all doctor categories' })
-  @ApiResponse({ status: 200, description: 'Return all doctor categories.', type: [DoctorCategory] })
-  @Get('categories')
-  async findAllCategories(): Promise<DoctorCategory[]> {
-    return this.doctorsService.findAllCategories();
-  }
-
-  @ApiOperation({ summary: 'Get a doctor category by ID' })
-  @ApiResponse({ status: 200, description: 'Return the doctor category.', type: DoctorCategory })
-  @ApiResponse({ status: 404, description: 'Category not found.' })
-  @Get('categories/:id')
-  async findCategoryById(@Param('id') id: string): Promise<DoctorCategory> {
-    return this.doctorsService.findCategoryById(id);
-  }
-
-  // Doctor endpoints
-  @ApiOperation({ summary: 'Get a doctor by ID' })
-  @ApiResponse({ status: 200, description: 'Return the doctor.', type: Doctor })
-  @ApiResponse({ status: 404, description: 'Doctor not found.' })
-  @Get(':id')
-  async findDoctorById(@Param('id') id: string): Promise<Doctor> {
-    return this.doctorsService.findDoctorById(id);
-  }
-
-  @ApiOperation({ summary: 'Get doctors by category ID' })
-  @ApiResponse({ status: 200, description: 'Return all doctors in the specified category.', type: [Doctor] })
-  @ApiResponse({ status: 404, description: 'Category not found.' })
-  @Get('category/:categoryId')
-  async findDoctorsByCategory(
-    @Param('categoryId') categoryId: string,
-  ): Promise<Doctor[]> {
-    return this.doctorsService.findDoctorsByCategory(categoryId);
   }
 } 
