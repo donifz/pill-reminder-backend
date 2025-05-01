@@ -5,25 +5,26 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class FileUploadService {
-  private readonly uploadsDir = 'uploads';
-  private readonly categoryIconsDir = 'uploads/categories';
-  private readonly doctorPhotosDir = 'uploads/doctors';
+  private readonly uploadsDir: string;
+  private readonly categoryIconsDir: string;
+  private readonly doctorPhotosDir: string;
 
   constructor() {
+    // Use absolute paths
+    this.uploadsDir = path.join(process.cwd(), 'uploads');
+    this.categoryIconsDir = path.join(this.uploadsDir, 'categories');
+    this.doctorPhotosDir = path.join(this.uploadsDir, 'doctors');
+
     // Ensure upload directories exist
     this.ensureDirectoriesExist();
   }
 
   private ensureDirectoriesExist() {
-    if (!fs.existsSync(this.uploadsDir)) {
-      fs.mkdirSync(this.uploadsDir);
-    }
-    if (!fs.existsSync(this.categoryIconsDir)) {
-      fs.mkdirSync(this.categoryIconsDir);
-    }
-    if (!fs.existsSync(this.doctorPhotosDir)) {
-      fs.mkdirSync(this.doctorPhotosDir);
-    }
+    [this.uploadsDir, this.categoryIconsDir, this.doctorPhotosDir].forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    });
   }
 
   async uploadCategoryIcon(file: Express.Multer.File): Promise<string> {
@@ -35,7 +36,7 @@ export class FileUploadService {
     await fs.promises.writeFile(filePath, file.buffer);
 
     // Return the relative path that will be stored in the database
-    return `/assets/icons/categories/${fileName}`;
+    return `/assets/categories/${fileName}`;
   }
 
   async uploadDoctorPhoto(file: Express.Multer.File): Promise<string> {
@@ -47,7 +48,7 @@ export class FileUploadService {
     await fs.promises.writeFile(filePath, file.buffer);
 
     // Return the relative path that will be stored in the database
-    return `/assets/photos/doctors/${fileName}`;
+    return `/assets/doctors/${fileName}`;
   }
 
   async deleteCategoryIcon(iconUrl: string): Promise<void> {

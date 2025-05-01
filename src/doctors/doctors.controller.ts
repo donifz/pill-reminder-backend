@@ -48,6 +48,13 @@ export class DoctorsController {
   }
 
   @Admin()
+  @Get()
+  @ApiOperation({ summary: 'Get all doctors' })
+  async getAllDoctors(@Query() query: QueryDoctorDto) {
+    return this.doctorsService.findAll(query);
+  }
+
+  @Admin()
   @Post()
   @ApiOperation({ summary: 'Create a new doctor' })
   @ApiConsumes('multipart/form-data')

@@ -3,9 +3,24 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { Response } from 'express';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Ensure uploads directory exists
+  const uploadsPath = join(__dirname, '..', 'uploads');
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+
+  // Serve static files from the uploads directory
+  app.useStaticAssets(uploadsPath, {
+    prefix: '/assets/',
+  });
 
   app.enableCors({
     origin: [
@@ -13,6 +28,8 @@ async function bootstrap() {
       'http://localhost:8081',
       'http://localhost:8082',
       'http://localhost:19006',
+      'http://localhost:3366', // Admin dashboard
+      'http://localhost:5173', // Vite dev server
       'http://192.168.31.187:3001',
       'http://192.168.31.187:8081',
       'http://192.168.31.187:8082',
@@ -44,7 +61,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.getHttpAdapter().get('/api-json', (req, res) => {
+  app.getHttpAdapter().get('/api-json', (req, res: Response) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(document);
   });

@@ -14,6 +14,7 @@ import { CountriesModule } from './countries/countries.module';
 import { PharmacyMedicinesModule } from './pharmacy-medicines/pharmacy-medicines.module';
 import { DeliveriesModule } from './deliveries/deliveries.module';
 import databaseConfig from './config/database.config';
+import { AssetsController } from './common/controllers/assets.controller';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import databaseConfig from './config/database.config';
     PharmacyMedicinesModule,
     DeliveriesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AssetsController],
   providers: [AppService],
 })
 export class AppModule {}
