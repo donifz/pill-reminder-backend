@@ -5,12 +5,14 @@ import { DoctorsService } from './doctors.service';
 import { Doctor } from './entities/doctor.entity';
 import { DoctorCategory } from './entities/doctor-category.entity';
 import { AuthModule } from '../auth/auth.module';
+import { FileUploadModule } from '../common/services/file-upload.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Doctor]),
+    TypeOrmModule.forFeature([Doctor, DoctorCategory]),
     TypeOrmModule.forFeature([DoctorCategory], 'default'),
     AuthModule,
+    FileUploadModule,
   ],
   controllers: [DoctorsController],
   providers: [DoctorsService],

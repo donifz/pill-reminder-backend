@@ -18,7 +18,7 @@ export class DoctorCategory {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   iconUrl: string;
 
   @Column({ nullable: true })

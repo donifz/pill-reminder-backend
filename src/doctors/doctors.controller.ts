@@ -8,8 +8,11 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -21,11 +24,17 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
 import { DoctorCategory } from './entities/doctor-category.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadService } from '../common/services/file-upload.service';
+import { Admin } from '../auth/decorators/admin.decorator';
 
 @ApiTags('Doctors')
 @Controller('doctors')
 export class DoctorsController {
-  constructor(private readonly doctorsService: DoctorsService) {}
+  constructor(
+    private readonly doctorsService: DoctorsService,
+    private readonly fileUploadService: FileUploadService,
+  ) {}
 
   @ApiOperation({ summary: 'Search doctors (Public)' })
   @ApiResponse({
@@ -38,106 +47,101 @@ export class DoctorsController {
     return this.doctorsService.findAll(query);
   }
 
-  // Doctor Category endpoints - Moved before :id route
-  @ApiOperation({ summary: 'Create a new doctor category' })
-  @ApiResponse({ status: 201, description: 'The category has been successfully created.', type: DoctorCategory })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
-  @Post('categories')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
-  async createCategory(
-    @Body() createCategoryDto: CreateDoctorCategoryDto,
-  ): Promise<DoctorCategory> {
-    return this.doctorsService.createCategory(createCategoryDto);
+  @Admin()
+  @Post()
+  @ApiOperation({ summary: 'Create a new doctor' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('photo'))
+  async createDoctor(
+    @Body() createDoctorDto: CreateDoctorDto,
+    @UploadedFile() photo?: Express.Multer.File,
+  ): Promise<Doctor> {
+    let photoUrl: string | undefined;
+    if (photo) {
+      photoUrl = await this.fileUploadService.uploadDoctorPhoto(photo);
+    }
+    return this.doctorsService.createDoctor({ ...createDoctorDto, photoUrl });
   }
 
-  @ApiOperation({ summary: 'Get all doctor categories' })
-  @ApiResponse({ status: 200, description: 'Return all doctor categories.', type: [DoctorCategory] })
+  @Admin()
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a doctor' })
+  @ApiResponse({ status: 200, description: 'Doctor updated successfully' })
+  @ApiResponse({ status: 404, description: 'Doctor not found' })
+  async updateDoctor(
+    @Param('id') id: string,
+    @Body() updateDoctorDto: UpdateDoctorDto,
+  ) {
+    return this.doctorsService.updateDoctor(id, updateDoctorDto);
+  }
+
+  @Admin()
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a doctor' })
+  async deleteDoctor(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.doctorsService.deleteDoctor(id);
+  }
+
+  // Doctor Category endpoints
+  @Admin()
+  @Post('categories')
+  @ApiOperation({ summary: 'Create a new doctor category' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('icon'))
+  async createCategory(
+    @Body() createCategoryDto: CreateDoctorCategoryDto,
+    @UploadedFile() icon?: Express.Multer.File,
+  ): Promise<DoctorCategory> {
+    let iconUrl: string | undefined;
+    if (icon) {
+      iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
+    }
+    return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl });
+  }
+
+  @Admin()
+  @Post('categories/bulk')
+  @ApiOperation({ summary: 'Bulk create doctor categories' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('icon'))
+  async bulkCreateCategories(
+    @Body() categories: CreateDoctorCategoryDto[],
+    @UploadedFile() icon?: Express.Multer.File,
+  ) {
+    let iconUrl: string | undefined;
+    if (icon) {
+      iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
+    }
+    return this.doctorsService.bulkCreateCategories(
+      categories.map((category) => ({ ...category, iconUrl })),
+    );
+  }
+
   @Get('categories')
+  @ApiOperation({ summary: 'Get all doctor categories' })
   async findAllCategories(): Promise<DoctorCategory[]> {
     return this.doctorsService.findAllCategories();
   }
 
-  @ApiOperation({ summary: 'Get a doctor category by ID' })
-  @ApiResponse({ status: 200, description: 'Return the doctor category.', type: DoctorCategory })
-  @ApiResponse({ status: 404, description: 'Category not found.' })
   @Get('categories/:id')
-  async findCategoryById(@Param('id') id: string): Promise<DoctorCategory> {
+  @ApiOperation({ summary: 'Get a doctor category by ID' })
+  async findCategoryById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<DoctorCategory> {
     return this.doctorsService.findCategoryById(id);
   }
 
   @ApiOperation({ summary: 'Get doctors by category ID' })
-  @ApiResponse({ status: 200, description: 'Return all doctors in the specified category.', type: [Doctor] })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all doctors in the specified category.',
+    type: [Doctor],
+  })
   @ApiResponse({ status: 404, description: 'Category not found.' })
   @Get('category/:categoryId')
   async findDoctorsByCategory(
     @Param('categoryId') categoryId: string,
   ): Promise<Doctor[]> {
     return this.doctorsService.findDoctorsByCategory(categoryId);
-  }
-
-  // Doctor endpoints
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Create a new doctor' })
-  @ApiResponse({
-    status: 201,
-    description: 'The doctor has been successfully created.',
-    type: Doctor,
-  })
-  @Post()
-  async create(@Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorsService.create(createDoctorDto);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get all doctors' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all doctors.',
-    type: [Doctor],
-  })
-  @Get()
-  async findAll(@Query() query: QueryDoctorDto) {
-    return this.doctorsService.findAll(query);
-  }
-
-  @ApiOperation({ summary: 'Get a doctor by ID' })
-  @ApiResponse({ status: 200, description: 'Return the doctor.', type: Doctor })
-  @ApiResponse({ status: 404, description: 'Doctor not found.' })
-  @Get(':id')
-  async findDoctorById(@Param('id') id: string): Promise<Doctor> {
-    return this.doctorsService.findDoctorById(id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update a doctor' })
-  @ApiResponse({
-    status: 200,
-    description: 'The doctor has been successfully updated.',
-    type: Doctor,
-  })
-  @ApiResponse({ status: 404, description: 'Doctor not found.' })
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateDoctorDto: UpdateDoctorDto,
-  ) {
-    return this.doctorsService.update(id, updateDoctorDto);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Delete a doctor' })
-  @ApiResponse({
-    status: 200,
-    description: 'The doctor has been successfully deleted.',
-  })
-  @ApiResponse({ status: 404, description: 'Doctor not found.' })
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.doctorsService.remove(id);
   }
 } 
