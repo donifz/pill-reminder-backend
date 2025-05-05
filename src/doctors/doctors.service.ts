@@ -25,18 +25,47 @@ export class DoctorsService extends BaseService<Doctor> {
   // Doctor Category methods
   async createCategory(
     createCategoryDto: CreateDoctorCategoryDto,
+    icon?: Express.Multer.File,
   ): Promise<DoctorCategory> {
     const category = this.categoryRepository.create(createCategoryDto);
     return this.categoryRepository.save(category);
   }
 
-  async bulkCreateCategories(
-    categories: CreateDoctorCategoryDto[],
-  ): Promise<DoctorCategory[]> {
-    const createdCategories = categories.map((category) =>
-      this.categoryRepository.create(category),
-    );
-    return this.categoryRepository.save(createdCategories);
+  async updateCategory(
+    id: string,
+    updateCategoryDto: CreateDoctorCategoryDto,
+    icon?: Express.Multer.File,
+  ): Promise<DoctorCategory> {
+    const category = await this.categoryRepository.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    if (category.iconUrl) {
+      await this.fileUploadService.deleteFile(category.iconUrl);
+    }
+
+    Object.assign(category, updateCategoryDto);
+    return this.categoryRepository.save(category);
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    const category = await this.categoryRepository.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    if (category.iconUrl) {
+      await this.fileUploadService.deleteFile(category.iconUrl);
+    }
+
+    await this.categoryRepository.remove(category);
   }
 
   async findAllCategories(): Promise<DoctorCategory[]> {
@@ -44,35 +73,31 @@ export class DoctorsService extends BaseService<Doctor> {
   }
 
   async findCategoryById(id: string): Promise<DoctorCategory> {
-    const category = await this.categoryRepository.findOne({ where: { id } });
+    const category = await this.categoryRepository.findOne({
+      where: { id },
+    });
+
     if (!category) {
-      throw new NotFoundException(`Category with ID "${id}" not found`);
+      throw new NotFoundException('Category not found');
     }
+
     return category;
   }
 
-  async deleteCategory(id: string): Promise<void> {
-    const category = await this.findCategoryById(id);
-    if (category.iconUrl) {
-      await this.fileUploadService.deleteCategoryIcon(category.iconUrl);
-    }
-    await this.categoryRepository.remove(category);
-  }
-
   // Doctor methods
-  async createDoctor(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+  async createDoctor(createDoctorDto: CreateDoctorDto, photo?: Express.Multer.File): Promise<Doctor> {
     const category = await this.categoryRepository.findOne({
       where: { id: createDoctorDto.categoryId },
     });
+
     if (!category) {
-      throw new NotFoundException(
-        `Category with ID ${createDoctorDto.categoryId} not found`,
-      );
+      throw new NotFoundException('Category not found');
     }
 
     const doctor = this.doctorRepository.create({
       ...createDoctorDto,
       category,
+      availableSlots: createDoctorDto.availableSlots || [],
     });
 
     return this.doctorRepository.save(doctor);
@@ -81,44 +106,44 @@ export class DoctorsService extends BaseService<Doctor> {
   async updateDoctor(
     id: string,
     updateDoctorDto: UpdateDoctorDto,
+    photo?: Express.Multer.File,
   ): Promise<Doctor> {
-    const doctor = await this.doctorRepository.findOne({ where: { id } });
+    const doctor = await this.doctorRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
     if (!doctor) {
-      throw new NotFoundException(`Doctor with ID "${id}" not found`);
+      throw new NotFoundException('Doctor not found');
     }
 
-    // If there's a new photo, delete the old one
-    if (updateDoctorDto.photoUrl && doctor.photoUrl) {
-      await this.fileUploadService.deleteDoctorPhoto(doctor.photoUrl);
-    }
-
-    // If category is being updated, verify it exists
-    if (updateDoctorDto.categoryId) {
+    if (updateDoctorDto.categoryId && updateDoctorDto.categoryId !== doctor.category.id) {
       const category = await this.categoryRepository.findOne({
         where: { id: updateDoctorDto.categoryId },
       });
+
       if (!category) {
-        throw new NotFoundException(
-          `Category with ID ${updateDoctorDto.categoryId} not found`,
-        );
+        throw new NotFoundException('Category not found');
       }
+
       doctor.category = category;
     }
 
-    // Update other fields
     Object.assign(doctor, updateDoctorDto);
     return this.doctorRepository.save(doctor);
   }
 
   async deleteDoctor(id: string): Promise<void> {
-    const doctor = await this.doctorRepository.findOne({ where: { id } });
+    const doctor = await this.doctorRepository.findOne({
+      where: { id },
+    });
+
     if (!doctor) {
-      throw new NotFoundException(`Doctor with ID "${id}" not found`);
+      throw new NotFoundException('Doctor not found');
     }
 
-    // Delete the doctor's photo if it exists
     if (doctor.photoUrl) {
-      await this.fileUploadService.deleteDoctorPhoto(doctor.photoUrl);
+      await this.fileUploadService.deleteFile(doctor.photoUrl);
     }
 
     await this.doctorRepository.remove(doctor);

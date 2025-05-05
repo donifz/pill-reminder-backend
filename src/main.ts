@@ -7,6 +7,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { Response } from 'express';
 import * as fs from 'fs';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -18,9 +19,7 @@ async function bootstrap() {
   }
 
   // Serve static files from the uploads directory
-  app.useStaticAssets(uploadsPath, {
-    prefix: '/assets/',
-  });
+  app.use('/assets', express.static(uploadsPath));
 
   app.enableCors({
     origin: [

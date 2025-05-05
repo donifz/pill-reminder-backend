@@ -24,10 +24,10 @@ export class Doctor {
   @Column()
   yearsExperience: number;
 
-  @Column('decimal', { precision: 3, scale: 2 })
+  @Column('decimal', { precision: 3, scale: 2, nullable: true })
   rating: number;
 
-  @Column()
+  @Column({ nullable: true })
   reviewsCount: number;
 
   @Column('text')

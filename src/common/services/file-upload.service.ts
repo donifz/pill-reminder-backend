@@ -20,11 +20,13 @@ export class FileUploadService {
   }
 
   private ensureDirectoriesExist() {
-    [this.uploadsDir, this.categoryIconsDir, this.doctorPhotosDir].forEach(dir => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-    });
+    [this.uploadsDir, this.categoryIconsDir, this.doctorPhotosDir].forEach(
+      (dir) => {
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+      },
+    );
   }
 
   async uploadCategoryIcon(file: Express.Multer.File): Promise<string> {
@@ -51,25 +53,27 @@ export class FileUploadService {
     return `/assets/doctors/${fileName}`;
   }
 
-  async deleteCategoryIcon(iconUrl: string): Promise<void> {
-    if (!iconUrl) return;
+  async deleteFile(fileUrl: string): Promise<void> {
+    try {
+      if (!fileUrl) return;
 
-    const fileName = path.basename(iconUrl);
-    const filePath = path.join(this.categoryIconsDir, fileName);
+      const fileName = path.basename(fileUrl);
+      let filePath: string;
 
-    if (fs.existsSync(filePath)) {
-      await fs.promises.unlink(filePath);
-    }
-  }
+      if (fileUrl.includes('/assets/categories/')) {
+        filePath = path.join(this.categoryIconsDir, fileName);
+      } else if (fileUrl.includes('/assets/doctors/')) {
+        filePath = path.join(this.doctorPhotosDir, fileName);
+      } else {
+        return;
+      }
 
-  async deleteDoctorPhoto(photoUrl: string): Promise<void> {
-    if (!photoUrl) return;
-
-    const fileName = path.basename(photoUrl);
-    const filePath = path.join(this.doctorPhotosDir, fileName);
-
-    if (fs.existsSync(filePath)) {
-      await fs.promises.unlink(filePath);
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      // Don't throw error as this is not critical
     }
   }
 } 

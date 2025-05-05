@@ -11,6 +11,9 @@ import {
   UseInterceptors,
   UploadedFile,
   ParseUUIDPipe,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { DoctorsService } from './doctors.service';
@@ -30,6 +33,8 @@ import { Admin } from '../auth/decorators/admin.decorator';
 
 @ApiTags('Doctors')
 @Controller('doctors')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class DoctorsController {
   constructor(
     private readonly doctorsService: DoctorsService,
@@ -57,17 +62,48 @@ export class DoctorsController {
   @Admin()
   @Post()
   @ApiOperation({ summary: 'Create a new doctor' })
+  @ApiResponse({ status: 201, description: 'Doctor created successfully' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('photo'))
   async createDoctor(
     @Body() createDoctorDto: CreateDoctorDto,
-    @UploadedFile() photo?: Express.Multer.File,
-  ): Promise<Doctor> {
-    let photoUrl: string | undefined;
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    photo?: Express.Multer.File,
+  ) {
+    // Convert FormData arrays and objects to proper types
+    if (createDoctorDto.languages && typeof createDoctorDto.languages === 'object') {
+      createDoctorDto.languages = Object.values(createDoctorDto.languages);
+    }
+    if (createDoctorDto.location && typeof createDoctorDto.location === 'object') {
+      createDoctorDto.location = {
+        latitude: Number(createDoctorDto.location.latitude),
+        longitude: Number(createDoctorDto.location.longitude),
+      };
+    }
+    if (createDoctorDto.availableSlots && typeof createDoctorDto.availableSlots === 'object') {
+      createDoctorDto.availableSlots = Object.values(createDoctorDto.availableSlots).map(
+        (slot) => new Date(slot),
+      );
+    }
+
+    // Handle photo upload
+    let photoUrl = createDoctorDto.photoUrl;
     if (photo) {
       photoUrl = await this.fileUploadService.uploadDoctorPhoto(photo);
+    } else if (!photoUrl) {
+      // Set default photo URL if no photo is provided
+      photoUrl = '/assets/images/default-doctor.jpg';
     }
-    return this.doctorsService.createDoctor({ ...createDoctorDto, photoUrl });
+
+    return this.doctorsService.createDoctor({ ...createDoctorDto, photoUrl }, photo);
   }
 
   @Admin()
@@ -75,11 +111,50 @@ export class DoctorsController {
   @ApiOperation({ summary: 'Update a doctor' })
   @ApiResponse({ status: 200, description: 'Doctor updated successfully' })
   @ApiResponse({ status: 404, description: 'Doctor not found' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('photo'))
   async updateDoctor(
     @Param('id') id: string,
     @Body() updateDoctorDto: UpdateDoctorDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    photo?: Express.Multer.File,
   ) {
-    return this.doctorsService.updateDoctor(id, updateDoctorDto);
+    // Convert FormData arrays and objects to proper types
+    if (updateDoctorDto.languages && typeof updateDoctorDto.languages === 'object') {
+      updateDoctorDto.languages = Object.values(updateDoctorDto.languages);
+    }
+    if (updateDoctorDto.location && typeof updateDoctorDto.location === 'object') {
+      updateDoctorDto.location = {
+        latitude: Number(updateDoctorDto.location.latitude),
+        longitude: Number(updateDoctorDto.location.longitude),
+      };
+    }
+    if (updateDoctorDto.availableSlots && typeof updateDoctorDto.availableSlots === 'object') {
+      updateDoctorDto.availableSlots = Object.values(updateDoctorDto.availableSlots).map(
+        (slot) => new Date(slot),
+      );
+    }
+
+    // Handle photo upload
+    let photoUrl = updateDoctorDto.photoUrl;
+    if (photo) {
+      // Delete old photo if exists
+      const existingDoctor = await this.doctorsService.findOne(id);
+      if (existingDoctor?.photoUrl) {
+        await this.fileUploadService.deleteFile(existingDoctor.photoUrl);
+      }
+      photoUrl = await this.fileUploadService.uploadDoctorPhoto(photo);
+    }
+
+    return this.doctorsService.updateDoctor(id, { ...updateDoctorDto, photoUrl }, photo);
   }
 
   @Admin()
@@ -103,25 +178,7 @@ export class DoctorsController {
     if (icon) {
       iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
     }
-    return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl });
-  }
-
-  @Admin()
-  @Post('categories/bulk')
-  @ApiOperation({ summary: 'Bulk create doctor categories' })
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('icon'))
-  async bulkCreateCategories(
-    @Body() categories: CreateDoctorCategoryDto[],
-    @UploadedFile() icon?: Express.Multer.File,
-  ) {
-    let iconUrl: string | undefined;
-    if (icon) {
-      iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
-    }
-    return this.doctorsService.bulkCreateCategories(
-      categories.map((category) => ({ ...category, iconUrl })),
-    );
+    return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl }, icon);
   }
 
   @Get('categories')
