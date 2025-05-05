@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { PharmaciesService } from './pharmacies.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
@@ -15,6 +16,10 @@ import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
 import { QueryPharmacyDto } from './dto/query-pharmacy.dto';
 import { Pharmacy } from './entities/pharmacy.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../common/enums/role.enum';
 
 @ApiTags('Pharmacies')
 @ApiBearerAuth()
@@ -22,7 +27,9 @@ import { Pharmacy } from './entities/pharmacy.entity';
 export class PharmaciesController {
   constructor(private readonly pharmaciesService: PharmaciesService) {}
 
-  @ApiOperation({ summary: 'Create a new pharmacy' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new pharmacy (Admin only)' })
   @ApiResponse({ status: 201, description: 'The pharmacy has been successfully created.', type: Pharmacy })
   @Post()
   create(@Body() createPharmacyDto: CreatePharmacyDto) {
@@ -118,7 +125,9 @@ export class PharmaciesController {
     return this.pharmaciesService.findOne(id);
   }
 
-  @ApiOperation({ summary: 'Update a pharmacy' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update a pharmacy (Admin only)' })
   @ApiResponse({ status: 200, description: 'The pharmacy has been successfully updated.', type: Pharmacy })
   @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
   @Patch(':id')
@@ -126,7 +135,9 @@ export class PharmaciesController {
     return this.pharmaciesService.update(id, updatePharmacyDto);
   }
 
-  @ApiOperation({ summary: 'Delete a pharmacy' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete a pharmacy (Admin only)' })
   @ApiResponse({ status: 200, description: 'The pharmacy has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
   @Delete(':id')

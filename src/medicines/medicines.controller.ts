@@ -23,6 +23,8 @@ import { Role } from '../common/enums/role.enum';
 
 @ApiTags('Medicines')
 @Controller('medicines')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN)
 export class MedicinesController extends BaseController<
   Medicine,
   CreateMedicineDto,
@@ -37,7 +39,7 @@ export class MedicinesController extends BaseController<
     return 'Medicine';
   }
 
-  @ApiOperation({ summary: 'Search medicines (Public)' })
+  @ApiOperation({ summary: 'Search medicines (Admin only)' })
   @ApiResponse({
     status: 200,
     description: 'Return all medicines matching the search criteria.',
@@ -48,7 +50,7 @@ export class MedicinesController extends BaseController<
     return this.medicinesService.findAll(query);
   }
 
-  @ApiOperation({ summary: 'Get medicine by id (Public)' })
+  @ApiOperation({ summary: 'Get medicine by id (Admin only)' })
   @ApiResponse({
     status: 200,
     description: 'Return the medicine.',
@@ -61,8 +63,6 @@ export class MedicinesController extends BaseController<
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new medicine' })
   @ApiResponse({
     status: 201,
@@ -76,7 +76,6 @@ export class MedicinesController extends BaseController<
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all medicines' })
   @ApiResponse({
     status: 200,
@@ -89,8 +88,6 @@ export class MedicinesController extends BaseController<
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update a medicine' })
   @ApiResponse({
     status: 200,
@@ -108,8 +105,6 @@ export class MedicinesController extends BaseController<
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a medicine' })
   @ApiResponse({
     status: 200,
