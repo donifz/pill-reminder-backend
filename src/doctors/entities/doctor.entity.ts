@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { DoctorCategory } from './doctor-category.entity';
+import { DoctorPatient } from './doctor-patient.entity';
 
 @Entity('doctors')
 export class Doctor {
@@ -56,6 +57,9 @@ export class Doctor {
 
   @Column('simple-array')
   availableSlots: Date[];
+
+  @OneToMany(() => DoctorPatient, doctorPatient => doctorPatient.doctor)
+  patientRelations: DoctorPatient[];
 
   @CreateDateColumn()
   createdAt: Date;

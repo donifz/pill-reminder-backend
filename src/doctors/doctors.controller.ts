@@ -103,7 +103,9 @@ export class DoctorsController {
       photoUrl = '/assets/images/default-doctor.jpg';
     }
 
-    return this.doctorsService.createDoctor({ ...createDoctorDto, photoUrl }, photo);
+    // Remove photo property from DTO
+    const { photo: _, ...dtoWithoutPhoto } = createDoctorDto as any;
+    return this.doctorsService.createDoctor({ ...dtoWithoutPhoto, photoUrl }, photo);
   }
 
   @Admin()
@@ -154,7 +156,9 @@ export class DoctorsController {
       photoUrl = await this.fileUploadService.uploadDoctorPhoto(photo);
     }
 
-    return this.doctorsService.updateDoctor(id, { ...updateDoctorDto, photoUrl }, photo);
+    // Remove photo property from DTO
+    const { photo: _, ...dtoWithoutPhoto } = updateDoctorDto as any;
+    return this.doctorsService.updateDoctor(id, { ...dtoWithoutPhoto, photoUrl }, photo);
   }
 
   @Admin()
@@ -207,5 +211,18 @@ export class DoctorsController {
     @Param('categoryId') categoryId: string,
   ): Promise<Doctor[]> {
     return this.doctorsService.findDoctorsByCategory(categoryId);
+  }
+
+  @Post('users/:userId')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a doctor profile from a user' })
+  @ApiResponse({ status: 201, description: 'Doctor profile created successfully.' })
+  @ApiResponse({ status: 400, description: 'User is already a doctor.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async createDoctorFromUser(
+    @Param('userId') userId: string,
+    @Body() createDoctorDto: CreateDoctorDto,
+  ) {
+    return this.doctorsService.createDoctorFromUser(userId, createDoctorDto);
   }
 } 

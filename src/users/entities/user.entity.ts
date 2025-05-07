@@ -1,7 +1,9 @@
 import { Medication } from 'src/medications/entities/medication.entity';
 import { Guardian } from './guardian.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from '../../common/enums/role.enum';
+import { Doctor } from '../../doctors/entities/doctor.entity';
+import { DoctorPatient } from '../../doctors/entities/doctor-patient.entity';
 
 @Entity()
 export class User {
@@ -35,6 +37,9 @@ export class User {
 
   @OneToMany(() => Guardian, guardian => guardian.guardian)
   guardianFor: Guardian[];
+
+  @OneToMany(() => DoctorPatient, doctorPatient => doctorPatient.patient)
+  doctorRelations: DoctorPatient[];
 
   @CreateDateColumn()
   createdAt: Date;

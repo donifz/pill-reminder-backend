@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsNumber, IsUrl, IsEmail, IsArray, IsObject, ValidateNested, Min, Max } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 class LocationDto {
@@ -15,6 +15,9 @@ class LocationDto {
 }
 
 export class UpdateDoctorDto {
+  @Exclude()
+  photo?: Express.Multer.File;
+
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()

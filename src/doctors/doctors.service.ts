@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../common/services/base.service';
@@ -9,6 +9,8 @@ import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { QueryDoctorDto } from './dto/query-doctor.dto';
 import { FileUploadService } from '../common/services/file-upload.service';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../common/enums/role.enum';
 
 @Injectable()
 export class DoctorsService extends BaseService<Doctor> {
@@ -17,6 +19,8 @@ export class DoctorsService extends BaseService<Doctor> {
     private readonly doctorRepository: Repository<Doctor>,
     @InjectRepository(DoctorCategory)
     private readonly categoryRepository: Repository<DoctorCategory>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly fileUploadService: FileUploadService,
   ) {
     super(doctorRepository);
@@ -192,5 +196,38 @@ export class DoctorsService extends BaseService<Doctor> {
     }
 
     return super.findAll(where, order, page, limit);
+  }
+
+  async createDoctorFromUser(userId: string, createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role === Role.DOCTOR) {
+      throw new BadRequestException('User is already a doctor');
+    }
+
+    const category = await this.categoryRepository.findOne({
+      where: { id: createDoctorDto.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    // Update user role to DOCTOR
+    user.role = Role.DOCTOR;
+    await this.userRepository.save(user);
+
+    // Create doctor profile
+    const doctor = this.doctorRepository.create({
+      ...createDoctorDto,
+      category,
+      availableSlots: createDoctorDto.availableSlots || [],
+    });
+
+    return this.doctorRepository.save(doctor);
   }
 } 
