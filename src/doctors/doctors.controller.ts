@@ -52,11 +52,47 @@ export class DoctorsController {
     return this.doctorsService.findAll(query);
   }
 
+  @Get('categories')
+  @ApiOperation({ summary: 'Get all doctor categories' })
+  async findAllCategories(): Promise<DoctorCategory[]> {
+    return this.doctorsService.findAllCategories();
+  }
+
+  @Get('categories/:id')
+  @ApiOperation({ summary: 'Get a doctor category by ID' })
+  async findCategoryById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<DoctorCategory> {
+    return this.doctorsService.findCategoryById(id);
+  }
+
+  @ApiOperation({ summary: 'Get doctors by category ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all doctors in the specified category.',
+    type: [Doctor],
+  })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
+  @Get('category/:categoryId')
+  async findDoctorsByCategory(
+    @Param('categoryId') categoryId: string,
+  ): Promise<Doctor[]> {
+    return this.doctorsService.findDoctorsByCategory(categoryId);
+  }
+
   @Admin()
   @Get()
   @ApiOperation({ summary: 'Get all doctors' })
   async getAllDoctors(@Query() query: QueryDoctorDto) {
     return this.doctorsService.findAll(query);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a doctor by ID' })
+  @ApiResponse({ status: 200, description: 'Return the doctor with the specified ID.', type: Doctor })
+  @ApiResponse({ status: 404, description: 'Doctor not found.' })
+  async getDoctorById(@Param('id', ParseUUIDPipe) id: string): Promise<Doctor> {
+    return this.doctorsService.findDoctorById(id);
   }
 
   @Admin()
@@ -183,34 +219,6 @@ export class DoctorsController {
       iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
     }
     return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl }, icon);
-  }
-
-  @Get('categories')
-  @ApiOperation({ summary: 'Get all doctor categories' })
-  async findAllCategories(): Promise<DoctorCategory[]> {
-    return this.doctorsService.findAllCategories();
-  }
-
-  @Get('categories/:id')
-  @ApiOperation({ summary: 'Get a doctor category by ID' })
-  async findCategoryById(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<DoctorCategory> {
-    return this.doctorsService.findCategoryById(id);
-  }
-
-  @ApiOperation({ summary: 'Get doctors by category ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all doctors in the specified category.',
-    type: [Doctor],
-  })
-  @ApiResponse({ status: 404, description: 'Category not found.' })
-  @Get('category/:categoryId')
-  async findDoctorsByCategory(
-    @Param('categoryId') categoryId: string,
-  ): Promise<Doctor[]> {
-    return this.doctorsService.findDoctorsByCategory(categoryId);
   }
 
   @Post('users/:userId')

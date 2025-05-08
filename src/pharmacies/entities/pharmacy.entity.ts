@@ -13,6 +13,9 @@ export class Pharmacy {
   @Column()
   address: string;
 
+  @Column({ nullable: true })
+  city: string;
+
   @Column('json')
   location: {
     latitude: number;

@@ -49,6 +49,9 @@ export class Doctor {
   @Column()
   clinicAddress: string;
 
+  @Column({ nullable: true })
+  city: string;
+
   @Column('json')
   location: {
     latitude: number;

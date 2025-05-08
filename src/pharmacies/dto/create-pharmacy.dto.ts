@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, IsBoolean, IsNumber, Min, Max } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsBoolean, IsNumber, Min, Max, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePharmacyDto {
@@ -11,6 +11,11 @@ export class CreatePharmacyDto {
   @IsString()
   @IsNotEmpty()
   address: string;
+
+  @ApiProperty({ description: 'City where the pharmacy is located' })
+  @IsString()
+  @IsOptional()
+  city?: string;
 
   @ApiProperty({ description: 'Latitude coordinate of the pharmacy location' })
   @IsNumber()

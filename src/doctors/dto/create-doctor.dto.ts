@@ -118,22 +118,22 @@ export class CreateDoctorDto {
   @IsString()
   clinicAddress: string;
 
-  @ApiProperty({
-    description: 'Geographic location of the doctor\'s clinic',
-    type: LocationDto,
-  })
+  @ApiProperty({ description: 'City where the doctor practices' })
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @ApiProperty({ description: 'Location coordinates' })
   @IsObject()
   @ValidateNested()
   @Type(() => LocationDto)
   location: LocationDto;
 
   @ApiProperty({
-    description: 'Available appointment slots',
+    description: 'Available consultation slots',
     type: [Date],
-    required: false,
   })
-  @IsOptional()
   @IsArray()
   @Type(() => Date)
-  availableSlots?: Date[];
+  availableSlots: Date[];
 } 
