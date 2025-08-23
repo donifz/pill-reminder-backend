@@ -159,7 +159,7 @@ export class DoctorsService extends BaseService<Doctor> {
     });
   }
 
-  async findDoctorById(id: string): Promise<Doctor> {
+  async findDoctorById(id: string): Promise<any> {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
       relations: ['category'],
@@ -167,7 +167,31 @@ export class DoctorsService extends BaseService<Doctor> {
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
-    return doctor;
+    return {
+      id: doctor.id,
+      name: `${doctor.firstName} ${doctor.lastName}`,
+      email: doctor.contactEmail,
+      phone: doctor.contactPhone,
+      specialization: doctor.specialization,
+      experience: doctor.yearsExperience,
+      rating: doctor.rating !== undefined && doctor.rating !== null ? Number(doctor.rating) : 0,
+      city: doctor.city || '',
+      country: 'Unknown', // You might want to add country field to the entity
+      image: doctor.photoUrl,
+      category: doctor.category ? {
+        id: doctor.category.id,
+        name: doctor.category.name,
+      } : null,
+      bio: doctor.bio,
+      languages: doctor.languages,
+      consultationFee: doctor.consultationFee,
+      clinicAddress: doctor.clinicAddress,
+      location: doctor.location,
+      availableSlots: doctor.availableSlots,
+      reviewsCount: doctor.reviewsCount,
+      createdAt: doctor.createdAt,
+      updatedAt: doctor.updatedAt,
+    };
   }
 
   async findDoctorsByCategory(categoryId: string): Promise<Doctor[]> {
@@ -196,6 +220,54 @@ export class DoctorsService extends BaseService<Doctor> {
     }
 
     return super.findAll(where, order, page, limit);
+  }
+
+  async searchDoctors(
+    query: QueryDoctorDto,
+    order = {},
+    page = 1,
+    limit = 10,
+  ) {
+    const where: any = {};
+    
+    if (query.name) {
+      where.name = query.name;
+    }
+    if (query.specialization) {
+      where.specialization = query.specialization;
+    }
+    if (query.countryId) {
+      where.country = { id: query.countryId };
+    }
+
+    const skip = (page - 1) * limit;
+    const [items, total] = await this.doctorRepository.findAndCount({
+      where,
+      order,
+      skip,
+      take: limit,
+      relations: ['category'],
+    });
+
+    // Transform the data to match frontend expectations
+    const transformedItems = items.map(doctor => ({
+      id: doctor.id,
+      name: `${doctor.firstName} ${doctor.lastName}`,
+      email: doctor.contactEmail,
+      phone: doctor.contactPhone,
+      specialization: doctor.specialization,
+      experience: doctor.yearsExperience,
+      rating: doctor.rating !== undefined && doctor.rating !== null ? Number(doctor.rating) : 0,
+      city: doctor.city || '',
+      country: 'Unknown', // You might want to add country field to the entity
+      image: doctor.photoUrl,
+      category: {
+        id: doctor.category.id,
+        name: doctor.category.name,
+      },
+    }));
+
+    return { items: transformedItems, total };
   }
 
   async createDoctorFromUser(userId: string, createDoctorDto: CreateDoctorDto): Promise<Doctor> {

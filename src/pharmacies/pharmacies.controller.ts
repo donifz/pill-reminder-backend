@@ -20,6 +20,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Pharmacies')
 @ApiBearerAuth()
@@ -39,10 +40,24 @@ export class PharmaciesController {
   @ApiOperation({ summary: 'Get all pharmacies' })
   @ApiResponse({ status: 200, description: 'Return all pharmacies.', type: [Pharmacy] })
   @Get()
-  findAll(@Query() query: QueryPharmacyDto) {
-    console.log('Received query parameters:', query);
-    
-    return this.pharmaciesService.findAll(query);
+  @Public()
+  async findAll(@Query() query: QueryPharmacyDto) {
+    const items = await this.pharmaciesService.findAll(query);
+    const pharmacies = items.map(pharmacy => ({
+      id: pharmacy.id,
+      name: pharmacy.name,
+      address: pharmacy.address,
+      city: pharmacy.city,
+      country: '', // Not in entity, so default to empty string
+      phone: pharmacy.contactPhone,
+      email: pharmacy.contactEmail,
+      rating: 0, // Not in entity, so default to 0
+      isOpen: pharmacy.is24h, // or use a real open/close logic if available
+      deliveryAvailable: false, // Not in entity, so default to false
+      image: '', // Not in entity, so default to empty string
+      workingHours: pharmacy.openingHours,
+    }));
+    return { pharmacies };
   }
 
   @ApiOperation({ summary: 'Get nearby pharmacies' })
@@ -85,6 +100,7 @@ export class PharmaciesController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request - Invalid input parameters' })
   @Get('nearby')
+  @Public()
   async getNearbyPharmacies(
     @Query('latitude') latitudeStr: string,
     @Query('longitude') longitudeStr: string,

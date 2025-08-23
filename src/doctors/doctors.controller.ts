@@ -30,6 +30,7 @@ import { DoctorCategory } from './entities/doctor-category.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from '../common/services/file-upload.service';
 import { Admin } from '../auth/decorators/admin.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Doctors')
 @Controller('doctors')
@@ -48,11 +49,13 @@ export class DoctorsController {
     type: [Doctor],
   })
   @Get('search')
+  @Public()
   async searchDoctors(@Query() query: QueryDoctorDto) {
-    return this.doctorsService.findAll(query);
+    return this.doctorsService.searchDoctors(query);
   }
 
   @Get('categories')
+  @Public()
   @ApiOperation({ summary: 'Get all doctor categories' })
   async findAllCategories(): Promise<DoctorCategory[]> {
     return this.doctorsService.findAllCategories();
@@ -88,6 +91,7 @@ export class DoctorsController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Get a doctor by ID' })
   @ApiResponse({ status: 200, description: 'Return the doctor with the specified ID.', type: Doctor })
   @ApiResponse({ status: 404, description: 'Doctor not found.' })
