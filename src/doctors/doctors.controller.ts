@@ -225,6 +225,15 @@ export class DoctorsController {
     return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl }, icon);
   }
 
+  @Get('users/:userId/data')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get user data for doctor profile creation' })
+  @ApiResponse({ status: 200, description: 'User data retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async getUserDataForDoctor(@Param('userId') userId: string) {
+    return this.doctorsService.getUserDataForDoctor(userId);
+  }
+
   @Post('users/:userId')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a doctor profile from a user' })

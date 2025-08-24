@@ -207,19 +207,30 @@ export class DoctorsService extends BaseService<Doctor> {
     page = 1,
     limit = 10,
   ) {
-    const where: any = {};
-    
+    // Use pagination parameters from query if provided
+    const currentPage = query.page || page;
+    const currentLimit = query.limit || limit;
+    const skip = (currentPage - 1) * currentLimit;
+
+    // Build query with conditions
+    const queryBuilder = this.doctorRepository
+      .createQueryBuilder('doctor')
+      .leftJoinAndSelect('doctor.category', 'category');
+
     if (query.name) {
-      where.name = query.name;
+      queryBuilder.where('doctor.firstName LIKE :name OR doctor.lastName LIKE :name', { name: `%${query.name}%` });
     }
+    
     if (query.specialization) {
-      where.specialization = query.specialization;
-    }
-    if (query.countryId) {
-      where.country = { id: query.countryId };
+      queryBuilder.andWhere('doctor.specialization LIKE :specialization', { specialization: `%${query.specialization}%` });
     }
 
-    return super.findAll(where, order, page, limit);
+    const [items, total] = await queryBuilder
+      .skip(skip)
+      .take(currentLimit)
+      .getManyAndCount();
+    
+    return { items, total };
   }
 
   async searchDoctors(
@@ -277,8 +288,14 @@ export class DoctorsService extends BaseService<Doctor> {
       throw new NotFoundException('User not found');
     }
 
-    if (user.role === Role.DOCTOR) {
-      throw new BadRequestException('User is already a doctor');
+    // Check if user already has a doctor profile
+    const existingDoctor = await this.doctorRepository.findOne({
+      where: { userId: userId },
+      relations: ['category'],
+    });
+
+    if (existingDoctor) {
+      throw new BadRequestException('User already has a doctor profile');
     }
 
     const category = await this.categoryRepository.findOne({
@@ -293,13 +310,59 @@ export class DoctorsService extends BaseService<Doctor> {
     user.role = Role.DOCTOR;
     await this.userRepository.save(user);
 
-    // Create doctor profile
+    // Create doctor profile using user data as base
     const doctor = this.doctorRepository.create({
-      ...createDoctorDto,
-      category,
+      // Use user data for basic information
+      firstName: user.name.split(' ')[0] || user.name,
+      lastName: user.name.split(' ').slice(1).join(' ') || '',
+      contactEmail: user.email,
+      city: user.city || '',
+      
+      // Use provided doctor-specific data
+      specialization: createDoctorDto.specialization,
+      yearsExperience: createDoctorDto.yearsExperience,
+      photoUrl: createDoctorDto.photoUrl || '',
+      bio: createDoctorDto.bio,
+      languages: createDoctorDto.languages || [],
+      consultationFee: createDoctorDto.consultationFee,
+      contactPhone: createDoctorDto.contactPhone,
+      clinicAddress: createDoctorDto.clinicAddress,
+      location: createDoctorDto.location,
       availableSlots: createDoctorDto.availableSlots || [],
+      
+      // Relationships
+      category,
+      user,
+      userId,
     });
 
     return this.doctorRepository.save(doctor);
+  }
+
+  async getUserDataForDoctor(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user already has a doctor profile
+    const existingDoctor = await this.doctorRepository.findOne({
+      where: { userId: userId },
+    });
+
+    if (existingDoctor) {
+      throw new BadRequestException('User already has a doctor profile');
+    }
+
+    // Return user data for pre-filling doctor form
+    const nameParts = user.name.split(' ');
+    return {
+      firstName: nameParts[0] || user.name,
+      lastName: nameParts.slice(1).join(' ') || '',
+      contactEmail: user.email,
+      city: user.city || '',
+      userId: user.id,
+    };
   }
 } 

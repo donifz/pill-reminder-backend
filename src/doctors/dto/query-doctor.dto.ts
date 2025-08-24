@@ -1,7 +1,8 @@
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
-export class QueryDoctorDto {
+export class QueryDoctorDto extends PaginationDto {
   @ApiProperty({ description: 'Filter by doctor name', required: false })
   @IsString()
   @IsOptional()

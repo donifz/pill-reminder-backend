@@ -44,6 +44,9 @@ export class User {
   @OneToMany(() => DoctorPatient, doctorPatient => doctorPatient.patient)
   doctorRelations: DoctorPatient[];
 
+  @OneToMany(() => Doctor, doctor => doctor.user)
+  doctorProfile: Doctor[];
+
   @CreateDateColumn()
   createdAt: Date;
 

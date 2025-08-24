@@ -32,17 +32,24 @@ export class CreateDoctorDto {
   @Exclude()
   photo?: Express.Multer.File;
 
-  @ApiProperty({ description: 'Doctor\'s first name' })
+  @ApiProperty({ description: 'Doctor\'s first name', required: false })
+  @IsOptional()
   @IsString()
-  firstName: string;
+  firstName?: string;
 
-  @ApiProperty({ description: 'Doctor\'s last name' })
+  @ApiProperty({ description: 'Doctor\'s last name', required: false })
+  @IsOptional()
   @IsString()
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty({ description: 'UUID of the doctor\'s category' })
   @IsUUID()
   categoryId: string;
+
+  @ApiProperty({ description: 'UUID of the user this doctor profile belongs to', required: false })
+  @IsOptional()
+  @IsUUID()
+  userId?: string;
 
   @ApiProperty({
     description: "URL or relative path to the doctor's profile photo",
@@ -106,9 +113,10 @@ export class CreateDoctorDto {
   @Type(() => Number)
   consultationFee: number;
 
-  @ApiProperty({ description: 'Doctor\'s contact email address' })
+  @ApiProperty({ description: 'Doctor\'s contact email address', required: false })
+  @IsOptional()
   @IsEmail()
-  contactEmail: string;
+  contactEmail?: string;
 
   @ApiProperty({ description: 'Doctor\'s contact phone number' })
   @IsString()
@@ -132,8 +140,10 @@ export class CreateDoctorDto {
   @ApiProperty({
     description: 'Available consultation slots',
     type: [Date],
+    required: false,
   })
+  @IsOptional()
   @IsArray()
   @Type(() => Date)
-  availableSlots: Date[];
+  availableSlots?: Date[];
 } 

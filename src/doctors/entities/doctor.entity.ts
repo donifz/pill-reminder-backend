@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { DoctorCategory } from './doctor-category.entity';
 import { DoctorPatient } from './doctor-patient.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('doctors')
 export class Doctor {
@@ -15,6 +16,12 @@ export class Doctor {
 
   @ManyToOne(() => DoctorCategory, category => category.doctors)
   category: DoctorCategory;
+
+  @ManyToOne(() => User, { nullable: true })
+  user: User;
+
+  @Column({ nullable: true })
+  userId: string;
 
   @Column()
   photoUrl: string;
