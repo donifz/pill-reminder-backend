@@ -11,4 +11,4 @@ export class CreateCountryDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-} 
+}

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 import { Pharmacy } from '../../pharmacies/entities/pharmacy.entity';
 
 @Entity('deliveries')
@@ -6,7 +13,7 @@ export class Delivery {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Pharmacy, pharmacy => pharmacy.deliveries)
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.deliveries)
   pharmacy: Pharmacy;
 
   @Column('simple-array')
@@ -26,4 +33,4 @@ export class Delivery {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DoctorPatient } from './entities/doctor-patient.entity';
@@ -17,20 +21,29 @@ export class DoctorPatientsService {
     private userRepository: Repository<User>,
   ) {}
 
-  async assignPatientToDoctor(doctorId: string, patientId: string): Promise<DoctorPatient> {
+  async assignPatientToDoctor(
+    doctorId: string,
+    patientId: string,
+  ): Promise<DoctorPatient> {
     // Check if doctor exists
-    const doctor = await this.doctorRepository.findOne({ where: { id: doctorId } });
+    const doctor = await this.doctorRepository.findOne({
+      where: { id: doctorId },
+    });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
 
     // Check if patient exists and has the correct role
-    const patient = await this.userRepository.findOne({ where: { id: patientId } });
+    const patient = await this.userRepository.findOne({
+      where: { id: patientId },
+    });
     if (!patient) {
       throw new NotFoundException('Patient not found');
     }
     if (patient.role !== Role.USER) {
-      throw new BadRequestException('User must have the user role to be assigned as a patient');
+      throw new BadRequestException(
+        'User must have the user role to be assigned as a patient',
+      );
     }
 
     // Check if relationship already exists
@@ -38,7 +51,9 @@ export class DoctorPatientsService {
       where: { doctor: { id: doctorId }, patient: { id: patientId } },
     });
     if (existingRelationship) {
-      throw new BadRequestException('Patient is already assigned to this doctor');
+      throw new BadRequestException(
+        'Patient is already assigned to this doctor',
+      );
     }
 
     // Create new relationship
@@ -50,7 +65,10 @@ export class DoctorPatientsService {
     return this.doctorPatientRepository.save(doctorPatient);
   }
 
-  async removePatientFromDoctor(doctorId: string, patientId: string): Promise<void> {
+  async removePatientFromDoctor(
+    doctorId: string,
+    patientId: string,
+  ): Promise<void> {
     const relationship = await this.doctorPatientRepository.findOne({
       where: { doctor: { id: doctorId }, patient: { id: patientId } },
     });
@@ -68,7 +86,7 @@ export class DoctorPatientsService {
       relations: ['patient'],
     });
 
-    return relationships.map(rel => rel.patient);
+    return relationships.map((rel) => rel.patient);
   }
 
   async getPatientDoctors(patientId: string): Promise<Doctor[]> {
@@ -77,6 +95,6 @@ export class DoctorPatientsService {
       relations: ['doctor'],
     });
 
-    return relationships.map(rel => rel.doctor);
+    return relationships.map((rel) => rel.doctor);
   }
-} 
+}

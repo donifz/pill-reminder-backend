@@ -21,18 +21,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-      
+
       if (typeof exceptionResponse === 'object') {
         message = exceptionResponse['message'] || exception.message;
         details = exceptionResponse['details'] || null;
       } else {
         message = exceptionResponse as string;
       }
-    } 
+    }
     // Handle database errors
-    else if (exception && typeof exception === 'object' && 'code' in exception) {
+    else if (
+      exception &&
+      typeof exception === 'object' &&
+      'code' in exception
+    ) {
       const dbError = exception as any;
-      
+
       // Handle unique constraint violations
       if (dbError.code === '23505') {
         status = HttpStatus.CONFLICT;
@@ -69,4 +73,4 @@ export class HttpExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     });
   }
-} 
+}

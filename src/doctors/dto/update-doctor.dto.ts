@@ -1,4 +1,15 @@
-import { IsString, IsOptional, IsNumber, IsUrl, IsEmail, IsArray, IsObject, ValidateNested, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsUrl,
+  IsEmail,
+  IsArray,
+  IsObject,
+  ValidateNested,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type, Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -113,4 +124,4 @@ export class UpdateDoctorDto {
   @Type(() => Array)
   @Type(() => Date)
   availableSlots?: Date[];
-} 
+}

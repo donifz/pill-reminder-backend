@@ -20,14 +20,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.usersRepository.findOne({ 
-      where: { id: payload.sub } 
+    const user = await this.usersRepository.findOne({
+      where: { id: payload.sub },
     });
-    
+
     if (!user) {
       return null;
     }
-    
+
     // Return the user with role from the database
     // This ensures the role is always up-to-date
     const { password, ...result } = user;
@@ -36,4 +36,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: user.role as Role,
     };
   }
-} 
+}

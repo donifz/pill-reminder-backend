@@ -8,7 +8,12 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { PharmacyMedicinesService } from './pharmacy-medicines.service';
 import { CreatePharmacyMedicineDto } from './dto/create-pharmacy-medicine.dto';
 import { UpdatePharmacyMedicineDto } from './dto/update-pharmacy-medicine.dto';
@@ -19,7 +24,9 @@ import { PharmacyMedicine } from './entities/pharmacy-medicine.entity';
 @ApiBearerAuth()
 @Controller('pharmacy-medicines')
 export class PharmacyMedicinesController {
-  constructor(private readonly pharmacyMedicinesService: PharmacyMedicinesService) {}
+  constructor(
+    private readonly pharmacyMedicinesService: PharmacyMedicinesService,
+  ) {}
 
   @ApiOperation({ summary: 'Create a new pharmacy medicine' })
   @ApiResponse({
@@ -80,4 +87,4 @@ export class PharmacyMedicinesController {
   remove(@Param('id') id: string) {
     return this.pharmacyMedicinesService.remove(id);
   }
-} 
+}

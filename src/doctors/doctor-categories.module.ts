@@ -10,4 +10,4 @@ import { DoctorCategoriesController } from './doctor-categories.controller';
   providers: [DoctorCategoriesService],
   exports: [DoctorCategoriesService],
 })
-export class DoctorCategoriesModule {} 
+export class DoctorCategoriesModule {}

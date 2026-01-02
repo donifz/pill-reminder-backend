@@ -9,7 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BaseController } from '../common/controllers/base.controller';
 import { Medicine } from './entities/medicine.entity';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
@@ -69,7 +74,10 @@ export class MedicinesController extends BaseController<
     description: 'The medicine has been successfully created.',
     type: Medicine,
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required.',
+  })
   @Post()
   async create(@Body() createMedicineDto: CreateMedicineDto) {
     return this.medicinesService.create(createMedicineDto);
@@ -95,7 +103,10 @@ export class MedicinesController extends BaseController<
     type: Medicine,
   })
   @ApiResponse({ status: 404, description: 'Medicine not found.' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required.',
+  })
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -111,9 +122,12 @@ export class MedicinesController extends BaseController<
     description: 'The medicine has been successfully deleted.',
   })
   @ApiResponse({ status: 404, description: 'Medicine not found.' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required.',
+  })
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.medicinesService.remove(id);
   }
-} 
+}

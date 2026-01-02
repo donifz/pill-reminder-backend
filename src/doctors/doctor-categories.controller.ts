@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { DoctorCategoriesService } from './doctor-categories.service';
 import { CreateDoctorCategoryDto } from './dto/create-doctor-category.dto';
 import { UpdateDoctorCategoryDto } from './dto/update-doctor-category.dto';
@@ -10,7 +19,9 @@ import { Role } from '../common/enums/role.enum';
 @Controller('doctor-categories')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class DoctorCategoriesController {
-  constructor(private readonly doctorCategoriesService: DoctorCategoriesService) {}
+  constructor(
+    private readonly doctorCategoriesService: DoctorCategoriesService,
+  ) {}
 
   @Post()
   @Roles(Role.ADMIN)
@@ -30,7 +41,10 @@ export class DoctorCategoriesController {
 
   @Patch(':id')
   @Roles(Role.ADMIN)
-  update(@Param('id') id: string, @Body() updateDoctorCategoryDto: UpdateDoctorCategoryDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorCategoryDto: UpdateDoctorCategoryDto,
+  ) {
     return this.doctorCategoriesService.update(id, updateDoctorCategoryDto);
   }
 
@@ -39,4 +53,4 @@ export class DoctorCategoriesController {
   remove(@Param('id') id: string) {
     return this.doctorCategoriesService.remove(id);
   }
-} 
+}

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 import { Pharmacy } from '../../pharmacies/entities/pharmacy.entity';
 import { Medicine } from '../../medicines/entities/medicine.entity';
 
@@ -7,10 +14,10 @@ export class PharmacyMedicine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Pharmacy, pharmacy => pharmacy.pharmacyMedicines)
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyMedicines)
   pharmacy: Pharmacy;
 
-  @ManyToOne(() => Medicine, medicine => medicine.pharmacyMedicines)
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyMedicines)
   medicine: Medicine;
 
   @Column('decimal', { precision: 10, scale: 2 })
@@ -36,4 +43,4 @@ export class PharmacyMedicine {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

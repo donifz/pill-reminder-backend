@@ -12,8 +12,12 @@ export class DoctorCategoriesService {
     private readonly doctorCategoryRepository: Repository<DoctorCategory>,
   ) {}
 
-  async create(createDoctorCategoryDto: CreateDoctorCategoryDto): Promise<DoctorCategory> {
-    const category = this.doctorCategoryRepository.create(createDoctorCategoryDto);
+  async create(
+    createDoctorCategoryDto: CreateDoctorCategoryDto,
+  ): Promise<DoctorCategory> {
+    const category = this.doctorCategoryRepository.create(
+      createDoctorCategoryDto,
+    );
     return await this.doctorCategoryRepository.save(category);
   }
 
@@ -22,14 +26,19 @@ export class DoctorCategoriesService {
   }
 
   async findOne(id: string): Promise<DoctorCategory> {
-    const category = await this.doctorCategoryRepository.findOne({ where: { id } });
+    const category = await this.doctorCategoryRepository.findOne({
+      where: { id },
+    });
     if (!category) {
       throw new NotFoundException(`Doctor category with ID ${id} not found`);
     }
     return category;
   }
 
-  async update(id: string, updateDoctorCategoryDto: UpdateDoctorCategoryDto): Promise<DoctorCategory> {
+  async update(
+    id: string,
+    updateDoctorCategoryDto: UpdateDoctorCategoryDto,
+  ): Promise<DoctorCategory> {
     const category = await this.findOne(id);
     Object.assign(category, updateDoctorCategoryDto);
     return await this.doctorCategoryRepository.save(category);
@@ -39,4 +48,4 @@ export class DoctorCategoriesService {
     const category = await this.findOne(id);
     await this.doctorCategoryRepository.remove(category);
   }
-} 
+}

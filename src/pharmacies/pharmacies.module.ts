@@ -6,12 +6,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Pharmacy } from './entities/pharmacy.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Pharmacy]),
-    HttpModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Pharmacy]), HttpModule],
   controllers: [PharmaciesController],
   providers: [PharmaciesService],
   exports: [PharmaciesService],
 })
-export class PharmaciesModule {} 
+export class PharmaciesModule {}

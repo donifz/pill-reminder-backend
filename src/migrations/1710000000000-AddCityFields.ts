@@ -40,4 +40,4 @@ export class AddCityFields1710000000000 implements MigrationInterface {
       DROP COLUMN "city"
     `);
   }
-} 
+}

@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InitialMigration1709250000000 implements MigrationInterface {
-    name = 'InitialMigration1709250000000'
+  name = 'InitialMigration1709250000000';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE "user" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "name" character varying NOT NULL,
@@ -17,7 +17,7 @@ export class InitialMigration1709250000000 implements MigrationInterface {
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "medication" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "name" character varying NOT NULL,
@@ -31,10 +31,10 @@ export class InitialMigration1709250000000 implements MigrationInterface {
                 CONSTRAINT "FK_medication_user" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
             )
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "medication"`);
-        await queryRunner.query(`DROP TABLE "user"`);
-    }
-} 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE "medication"`);
+    await queryRunner.query(`DROP TABLE "user"`);
+  }
+}

@@ -1,15 +1,22 @@
 import { User } from './user.entity';
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Column,
+} from 'typeorm';
 
 @Entity()
 export class Guardian {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, user => user.guardianFor)
+  @ManyToOne(() => User, (user) => user.guardianFor)
   guardian: User;
 
-  @ManyToOne(() => User, user => user.guardians)
+  @ManyToOne(() => User, (user) => user.guardians)
   user: User;
 
   @Column({ default: false })
@@ -26,4 +33,4 @@ export class Guardian {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

@@ -17,7 +17,10 @@ export class QueryMedicineDto {
   @IsOptional()
   countryId?: string;
 
-  @ApiProperty({ description: 'Filter by availability in pharmacies', required: false })
+  @ApiProperty({
+    description: 'Filter by availability in pharmacies',
+    required: false,
+  })
   @IsOptional()
   isAvailable?: boolean;
-} 
+}

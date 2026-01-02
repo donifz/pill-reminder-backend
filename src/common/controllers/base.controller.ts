@@ -1,16 +1,5 @@
-import {
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BaseService } from '../services/base.service';
 import { PaginationDto } from '../dto/pagination.dto';
 import { BaseEntity } from '../entities/base.entity';
@@ -26,9 +15,7 @@ export abstract class BaseController<
 
   protected abstract getEntityNameValue(): string;
 
-  constructor(
-    protected readonly service: BaseService<T>,
-  ) {
+  constructor(protected readonly service: BaseService<T>) {
     this._entityName = this.getEntityNameValue();
   }
 
@@ -89,4 +76,4 @@ export abstract class BaseController<
   async remove(@Param('id') id: string): Promise<void> {
     return this.service.remove(id);
   }
-} 
+}

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Doctor } from './doctor.entity';
 
@@ -7,10 +13,10 @@ export class DoctorPatient {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Doctor, doctor => doctor.patientRelations)
+  @ManyToOne(() => Doctor, (doctor) => doctor.patientRelations)
   doctor: Doctor;
 
-  @ManyToOne(() => User, user => user.doctorRelations)
+  @ManyToOne(() => User, (user) => user.doctorRelations)
   patient: User;
 
   @CreateDateColumn()
@@ -18,4 +24,4 @@ export class DoctorPatient {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

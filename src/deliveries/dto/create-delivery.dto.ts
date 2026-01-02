@@ -6,7 +6,10 @@ export class CreateDeliveryDto {
   @IsUUID()
   pharmacyId: string;
 
-  @ApiProperty({ description: 'Regions where delivery is available', type: [String] })
+  @ApiProperty({
+    description: 'Regions where delivery is available',
+    type: [String],
+  })
   @IsArray()
   @IsString({ each: true })
   regions: string[];
@@ -25,4 +28,4 @@ export class CreateDeliveryDto {
   @IsNumber()
   @Min(1)
   etaMinutes: number;
-} 
+}

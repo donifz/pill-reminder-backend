@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => {
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   // Handle connection string format
   if (process.env.DATABASE_URL) {
     const url = new URL(process.env.DATABASE_URL);
@@ -39,4 +39,4 @@ export default registerAs('database', () => {
     migrationsRun: true, // Automatically run migrations on startup
     migrationsTableName: 'migrations', // Name of the migrations table
   };
-}); 
+});

@@ -1,9 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddGuardianEntity1743507361499 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE "guardian" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "isAccepted" boolean NOT NULL DEFAULT false,
@@ -18,10 +17,9 @@ export class AddGuardianEntity1743507361499 implements MigrationInterface {
                 CONSTRAINT "FK_guardian_guardian" FOREIGN KEY ("guardianId") REFERENCES "user"("id") ON DELETE CASCADE
             )
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "guardian"`);
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE "guardian"`);
+  }
 }

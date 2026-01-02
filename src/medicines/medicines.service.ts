@@ -44,7 +44,7 @@ export class MedicinesService extends BaseService<Medicine> {
         const existingMedicine = await this.medicineRepository.findOne({
           where: { barcode: createMedicineDto.barcode },
         });
-        
+
         if (existingMedicine) {
           throw new ConflictException({
             message: 'Medicine with this barcode already exists',
@@ -60,9 +60,9 @@ export class MedicinesService extends BaseService<Medicine> {
           });
         }
       }
-      
+
       // Re-throw the original error if it's not a constraint violation
       throw error;
     }
   }
-} 
+}

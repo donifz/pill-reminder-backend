@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsEmail, IsBoolean, IsNumber, Min, Max, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  IsBoolean,
+  IsNumber,
+  Min,
+  Max,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePharmacyDto {
@@ -47,4 +56,4 @@ export class CreatePharmacyDto {
   @ApiProperty({ description: 'Whether the pharmacy is open 24 hours' })
   @IsBoolean()
   is24h: boolean;
-} 
+}

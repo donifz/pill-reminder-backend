@@ -32,4 +32,4 @@ export class DoctorCategory {
 
   @OneToMany(() => Doctor, (doctor) => doctor.category)
   doctors: Doctor[];
-} 
+}

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -16,13 +21,18 @@ export class GuardianService {
     private guardianRepository: Repository<Guardian>,
   ) {}
 
-  async inviteGuardian(userId: string, guardianEmail: string): Promise<Guardian> {
+  async inviteGuardian(
+    userId: string,
+    guardianEmail: string,
+  ): Promise<Guardian> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const guardian = await this.userRepository.findOne({ where: { email: guardianEmail } });
+    const guardian = await this.userRepository.findOne({
+      where: { email: guardianEmail },
+    });
     if (!guardian) {
       throw new NotFoundException('Guardian user not found');
     }
@@ -58,8 +68,10 @@ export class GuardianService {
   }
 
   async acceptInvitation(token: string, guardianId: string): Promise<Guardian> {
-    this.logger.log(`Looking for guardian with token: ${token} and guardianId: ${guardianId}`);
-    
+    this.logger.log(
+      `Looking for guardian with token: ${token} and guardianId: ${guardianId}`,
+    );
+
     // First, let's check if there's any guardian with this token
     const guardiansWithToken = await this.guardianRepository.find({
       where: {
@@ -67,10 +79,14 @@ export class GuardianService {
       },
       relations: ['guardian', 'user'],
     });
-    
-    this.logger.log(`Found ${guardiansWithToken.length} guardians with this token`);
-    guardiansWithToken.forEach(g => {
-      this.logger.log(`Guardian found: id=${g.id}, guardianId=${g.guardian.id}, userId=${g.user.id}`);
+
+    this.logger.log(
+      `Found ${guardiansWithToken.length} guardians with this token`,
+    );
+    guardiansWithToken.forEach((g) => {
+      this.logger.log(
+        `Guardian found: id=${g.id}, guardianId=${g.guardian.id}, userId=${g.user.id}`,
+      );
     });
 
     // Now try to find the specific guardian
@@ -83,7 +99,9 @@ export class GuardianService {
     });
 
     if (!guardian) {
-      this.logger.error(`No guardian found with token: ${token} and guardianId: ${guardianId}`);
+      this.logger.error(
+        `No guardian found with token: ${token} and guardianId: ${guardianId}`,
+      );
       throw new NotFoundException('Invalid invitation token');
     }
 
@@ -128,4 +146,4 @@ export class GuardianService {
 
     await this.guardianRepository.remove(guardian);
   }
-} 
+}

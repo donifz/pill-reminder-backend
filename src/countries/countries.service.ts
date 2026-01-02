@@ -12,4 +12,4 @@ export class CountriesService extends BaseService<Country> {
   ) {
     super(countryRepository);
   }
-} 
+}

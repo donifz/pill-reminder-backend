@@ -2,14 +2,20 @@ import { IsOptional, IsNumber, IsBoolean, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class QueryPharmacyDto {
-  @ApiProperty({ description: 'Latitude coordinate for radius search', required: false })
+  @ApiProperty({
+    description: 'Latitude coordinate for radius search',
+    required: false,
+  })
   @IsNumber()
   @Min(-90)
   @Max(90)
   @IsOptional()
   latitude?: number;
 
-  @ApiProperty({ description: 'Longitude coordinate for radius search', required: false })
+  @ApiProperty({
+    description: 'Longitude coordinate for radius search',
+    required: false,
+  })
   @IsNumber()
   @Min(-180)
   @Max(180)
@@ -22,8 +28,11 @@ export class QueryPharmacyDto {
   @IsOptional()
   radius?: number;
 
-  @ApiProperty({ description: 'Filter by 24-hour availability', required: false })
+  @ApiProperty({
+    description: 'Filter by 24-hour availability',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   is24h?: boolean;
-} 
+}

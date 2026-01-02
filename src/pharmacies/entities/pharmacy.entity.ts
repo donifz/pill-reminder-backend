@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { PharmacyMedicine } from '../../pharmacy-medicines/entities/pharmacy-medicine.entity';
 import { Delivery } from '../../deliveries/entities/delivery.entity';
 
@@ -34,10 +41,13 @@ export class Pharmacy {
   @Column()
   is24h: boolean;
 
-  @OneToMany(() => PharmacyMedicine, pharmacyMedicine => pharmacyMedicine.pharmacy)
+  @OneToMany(
+    () => PharmacyMedicine,
+    (pharmacyMedicine) => pharmacyMedicine.pharmacy,
+  )
   pharmacyMedicines: PharmacyMedicine[];
 
-  @OneToMany(() => Delivery, delivery => delivery.pharmacy)
+  @OneToMany(() => Delivery, (delivery) => delivery.pharmacy)
   deliveries: Delivery[];
 
   @CreateDateColumn()
@@ -45,4 +55,4 @@ export class Pharmacy {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

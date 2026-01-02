@@ -1,5 +1,12 @@
 import { User } from 'src/users/entities/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity()
 export class Medication {
@@ -30,7 +37,7 @@ export class Medication {
   @Column('json', { name: 'takendates', nullable: true })
   takenDates: { date: string; times: string[] }[];
 
-  @ManyToOne(() => User, user => user.medicines, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.medicines, { onDelete: 'CASCADE' })
   user: User;
 
   @CreateDateColumn()
@@ -38,4 +45,4 @@ export class Medication {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

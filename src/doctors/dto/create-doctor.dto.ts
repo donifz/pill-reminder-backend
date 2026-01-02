@@ -17,12 +17,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 class LocationDto {
-  @ApiProperty({ description: 'Latitude coordinate of the doctor\'s location' })
+  @ApiProperty({ description: "Latitude coordinate of the doctor's location" })
   @IsNumber()
   @Type(() => Number)
   latitude: number;
 
-  @ApiProperty({ description: 'Longitude coordinate of the doctor\'s location' })
+  @ApiProperty({ description: "Longitude coordinate of the doctor's location" })
   @IsNumber()
   @Type(() => Number)
   longitude: number;
@@ -32,21 +32,24 @@ export class CreateDoctorDto {
   @Exclude()
   photo?: Express.Multer.File;
 
-  @ApiProperty({ description: 'Doctor\'s first name', required: false })
+  @ApiProperty({ description: "Doctor's first name", required: false })
   @IsOptional()
   @IsString()
   firstName?: string;
 
-  @ApiProperty({ description: 'Doctor\'s last name', required: false })
+  @ApiProperty({ description: "Doctor's last name", required: false })
   @IsOptional()
   @IsString()
   lastName?: string;
 
-  @ApiProperty({ description: 'UUID of the doctor\'s category' })
+  @ApiProperty({ description: "UUID of the doctor's category" })
   @IsUUID()
   categoryId: string;
 
-  @ApiProperty({ description: 'UUID of the user this doctor profile belongs to', required: false })
+  @ApiProperty({
+    description: 'UUID of the user this doctor profile belongs to',
+    required: false,
+  })
   @IsOptional()
   @IsUUID()
   userId?: string;
@@ -59,7 +62,7 @@ export class CreateDoctorDto {
   @IsString()
   photoUrl?: string;
 
-  @ApiProperty({ description: 'Doctor\'s area of specialization' })
+  @ApiProperty({ description: "Doctor's area of specialization" })
   @IsString()
   specialization: string;
 
@@ -70,7 +73,7 @@ export class CreateDoctorDto {
   yearsExperience: number;
 
   @ApiProperty({
-    description: 'Doctor\'s rating out of 5',
+    description: "Doctor's rating out of 5",
     minimum: 0,
     maximum: 5,
     required: false,
@@ -93,7 +96,7 @@ export class CreateDoctorDto {
   @Type(() => Number)
   reviewsCount?: number;
 
-  @ApiProperty({ description: 'Doctor\'s professional biography' })
+  @ApiProperty({ description: "Doctor's professional biography" })
   @IsString()
   bio: string;
 
@@ -113,16 +116,19 @@ export class CreateDoctorDto {
   @Type(() => Number)
   consultationFee: number;
 
-  @ApiProperty({ description: 'Doctor\'s contact email address', required: false })
+  @ApiProperty({
+    description: "Doctor's contact email address",
+    required: false,
+  })
   @IsOptional()
   @IsEmail()
   contactEmail?: string;
 
-  @ApiProperty({ description: 'Doctor\'s contact phone number' })
+  @ApiProperty({ description: "Doctor's contact phone number" })
   @IsString()
   contactPhone: string;
 
-  @ApiProperty({ description: 'Physical address of the doctor\'s clinic' })
+  @ApiProperty({ description: "Physical address of the doctor's clinic" })
   @IsString()
   clinicAddress: string;
 
@@ -146,4 +152,4 @@ export class CreateDoctorDto {
   @IsArray()
   @Type(() => Date)
   availableSlots?: Date[];
-} 
+}

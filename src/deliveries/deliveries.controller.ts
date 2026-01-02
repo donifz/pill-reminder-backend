@@ -23,4 +23,4 @@ export class DeliveriesController extends BaseController<
   protected getEntityNameValue(): string {
     return 'Delivery';
   }
-} 
+}

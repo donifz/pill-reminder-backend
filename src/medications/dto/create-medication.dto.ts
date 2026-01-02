@@ -1,4 +1,12 @@
-import { IsString, IsArray, IsOptional, IsDateString, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class CreateMedicationDto {
   @IsString()
@@ -25,4 +33,4 @@ export class CreateMedicationDto {
   @IsOptional()
   @IsArray()
   takenDates?: { date: string; times: string[] }[];
-} 
+}

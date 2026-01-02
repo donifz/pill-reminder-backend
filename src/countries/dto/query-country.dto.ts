@@ -11,4 +11,4 @@ export class QueryCountryDto {
   @IsString()
   @IsOptional()
   isoCode?: string;
-} 
+}

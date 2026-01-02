@@ -51,4 +51,4 @@ export class BaseService<T extends BaseEntity> {
     await this.findOne(id);
     await this.repository.delete(id);
   }
-} 
+}

@@ -6,4 +6,4 @@ export class UpdatePharmacyDto extends PartialType(CreatePharmacyDto) {
     latitude: number;
     longitude: number;
   };
-} 
+}

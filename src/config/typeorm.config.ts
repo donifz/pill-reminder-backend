@@ -14,11 +14,13 @@ export default new DataSource({
   url: process.env.DATABASE_URL,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  ssl: isProduction ? {
-    rejectUnauthorized: false
-  } : false,
+  ssl: isProduction
+    ? {
+        rejectUnauthorized: false,
+      }
+    : false,
   logging: !isProduction,
   extra: {
     max: 20, // Maximum number of connections in the pool
-  }
-}); 
+  },
+});

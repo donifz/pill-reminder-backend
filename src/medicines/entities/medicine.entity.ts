@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Country } from '../../countries/entities/country.entity';
 import { PharmacyMedicine } from '../../pharmacy-medicines/entities/pharmacy-medicine.entity';
 import { BaseEntity } from '../../common/entities/base.entity';
@@ -37,11 +45,16 @@ export class Medicine extends BaseEntity {
   @Column({ unique: true })
   barcode: string;
 
-  @ApiProperty({ description: 'UUID of the country where the medicine is available' })
-  @ManyToOne(() => Country, country => country.medicines)
+  @ApiProperty({
+    description: 'UUID of the country where the medicine is available',
+  })
+  @ManyToOne(() => Country, (country) => country.medicines)
   country: Country;
 
-  @OneToMany(() => PharmacyMedicine, pharmacyMedicine => pharmacyMedicine.medicine)
+  @OneToMany(
+    () => PharmacyMedicine,
+    (pharmacyMedicine) => pharmacyMedicine.medicine,
+  )
   pharmacyMedicines: PharmacyMedicine[];
 
   @CreateDateColumn()
@@ -49,4 +62,4 @@ export class Medicine extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

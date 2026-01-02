@@ -20,7 +20,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { email } });
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
     return null;
@@ -51,13 +51,13 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
-        guardians: guardians.map(g => ({
+        guardians: guardians.map((g) => ({
           id: g.guardian.id,
           name: g.guardian.name,
           email: g.guardian.email,
           isAccepted: g.isAccepted,
         })),
-        guardianFor: guardianFor.map(g => ({
+        guardianFor: guardianFor.map((g) => ({
           id: g.user.id,
           name: g.user.name,
           email: g.user.email,
@@ -68,7 +68,9 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.usersRepository.findOne({ where: { email: registerDto.email } });
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: registerDto.email },
+    });
     if (existingUser) {
       throw new UnauthorizedException('Email already exists');
     }
@@ -93,4 +95,4 @@ export class AuthService {
       },
     };
   }
-} 
+}

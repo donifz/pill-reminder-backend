@@ -35,4 +35,3 @@ export class AddUserIdToDoctors1745600000002 implements MigrationInterface {
     `);
   }
 }
-

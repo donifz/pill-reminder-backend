@@ -6,4 +6,4 @@ export class UpdateMedicationDto extends PartialType(CreateMedicationDto) {
   @IsOptional()
   @IsArray()
   takenDates?: { date: string; times: string[] }[];
-} 
+}

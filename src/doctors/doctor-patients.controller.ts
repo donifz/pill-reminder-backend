@@ -1,5 +1,17 @@
-import { Controller, Post, Delete, Get, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Delete,
+  Get,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { DoctorPatientsService } from './doctor-patients.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -23,7 +35,10 @@ export class DoctorPatientsController {
     @Param('doctorId') doctorId: string,
     @Param('patientId') patientId: string,
   ) {
-    return this.doctorPatientsService.assignPatientToDoctor(doctorId, patientId);
+    return this.doctorPatientsService.assignPatientToDoctor(
+      doctorId,
+      patientId,
+    );
   }
 
   @Delete(':doctorId/patients/:patientId')
@@ -34,7 +49,10 @@ export class DoctorPatientsController {
     @Param('doctorId') doctorId: string,
     @Param('patientId') patientId: string,
   ) {
-    return this.doctorPatientsService.removePatientFromDoctor(doctorId, patientId);
+    return this.doctorPatientsService.removePatientFromDoctor(
+      doctorId,
+      patientId,
+    );
   }
 
   @Get('doctors/:doctorId/patients')
@@ -52,4 +70,4 @@ export class DoctorPatientsController {
   async getPatientDoctors(@Param('patientId') patientId: string) {
     return this.doctorPatientsService.getPatientDoctors(patientId);
   }
-} 
+}

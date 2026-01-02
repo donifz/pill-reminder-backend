@@ -36,4 +36,4 @@ export class AddUserRoles1745600000001 implements MigrationInterface {
       DROP TYPE "public"."user_role_enum"
     `);
   }
-} 
+}

@@ -34,7 +34,8 @@ async function bootstrap() {
       'http://192.168.31.187:8081',
       'http://192.168.31.187:8082',
       'http://192.168.31.187:19006',
-      process.env.FRONTEND_URL || 'https://medicine-reminder-frontend.onrender.com',
+      process.env.FRONTEND_URL ||
+        'https://medicine-reminder-frontend.onrender.com',
     ],
     credentials: true,
   });
@@ -57,7 +58,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
@@ -69,7 +70,9 @@ async function bootstrap() {
   const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`🚀 App is running on http://localhost:${port}`);
-  console.log(`📚 Swagger documentation available at http://localhost:${port}/api`);
+  console.log(
+    `📚 Swagger documentation available at http://localhost:${port}/api`,
+  );
 }
 
 bootstrap();

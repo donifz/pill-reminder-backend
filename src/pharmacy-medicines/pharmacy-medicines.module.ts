@@ -10,4 +10,4 @@ import { PharmacyMedicine } from './entities/pharmacy-medicine.entity';
   providers: [PharmacyMedicinesService],
   exports: [PharmacyMedicinesService],
 })
-export class PharmacyMedicinesModule {} 
+export class PharmacyMedicinesModule {}

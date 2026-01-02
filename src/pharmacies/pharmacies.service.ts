@@ -105,7 +105,7 @@ export class PharmaciesService {
 
   async update(id: string, updatePharmacyDto: UpdatePharmacyDto) {
     const pharmacy = await this.findOne(id);
-    
+
     if (updatePharmacyDto.latitude && updatePharmacyDto.longitude) {
       updatePharmacyDto.location = {
         latitude: updatePharmacyDto.latitude,
@@ -138,7 +138,9 @@ export class PharmaciesService {
         return this.getMockPharmacies(latitude, longitude);
       }
 
-      this.logger.log(`Using API key: ${this.googlePlacesApiKey.substring(0, 5)}... (key length: ${this.googlePlacesApiKey.length})`);
+      this.logger.log(
+        `Using API key: ${this.googlePlacesApiKey.substring(0, 5)}... (key length: ${this.googlePlacesApiKey.length})`,
+      );
 
       const url = `${this.googlePlacesBaseUrl}?location=${latitude},${longitude}&radius=${radius}&type=pharmacy&key=${this.googlePlacesApiKey}`;
       this.logger.debug(`Request URL: ${url}`);
@@ -146,15 +148,19 @@ export class PharmaciesService {
       // For debugging purposes, let's try a direct call first
       try {
         this.logger.log('Attempting direct HTTP call to Google Places API...');
-        const directResponse = await firstValueFrom(
-          this.httpService.get(url)
+        const directResponse = await firstValueFrom(this.httpService.get(url));
+        this.logger.log(
+          `Direct API call response status: ${directResponse.status}`,
         );
-        this.logger.log(`Direct API call response status: ${directResponse.status}`);
-        this.logger.log(`Direct API response data: ${JSON.stringify(directResponse.data).substring(0, 200)}...`);
+        this.logger.log(
+          `Direct API response data: ${JSON.stringify(directResponse.data).substring(0, 200)}...`,
+        );
       } catch (directError) {
         this.logger.error(`Direct API call failed: ${directError.message}`);
         if (directError.response) {
-          this.logger.error(`Direct error response: ${JSON.stringify(directError.response.data)}`);
+          this.logger.error(
+            `Direct error response: ${JSON.stringify(directError.response.data)}`,
+          );
         }
       }
 
@@ -172,9 +178,13 @@ export class PharmaciesService {
 
         this.logger.log(`API Response status: ${response.data.status}`);
         if (response.data.error_message) {
-          this.logger.error(`API Error message: ${response.data.error_message}`);
+          this.logger.error(
+            `API Error message: ${response.data.error_message}`,
+          );
         }
-        this.logger.log(`Found ${response.data.results?.length || 0} pharmacies`);
+        this.logger.log(
+          `Found ${response.data.results?.length || 0} pharmacies`,
+        );
 
         if (response.data.status !== 'OK') {
           this.logger.warn(
@@ -200,13 +210,17 @@ export class PharmaciesService {
           })),
         }));
       } catch (apiError) {
-        this.logger.error(`Error calling Google Places API: ${apiError.message}`);
+        this.logger.error(
+          `Error calling Google Places API: ${apiError.message}`,
+        );
         return this.getMockPharmacies(latitude, longitude);
       }
     } catch (error) {
       this.logger.error(`Error fetching pharmacies: ${error.message}`);
       if (error.response) {
-        this.logger.error(`Error response data: ${JSON.stringify(error.response.data)}`);
+        this.logger.error(
+          `Error response data: ${JSON.stringify(error.response.data)}`,
+        );
       }
       return this.getMockPharmacies(latitude, longitude);
     }
@@ -215,7 +229,7 @@ export class PharmaciesService {
   // Add a method to generate mock pharmacy data
   private getMockPharmacies(latitude: number, longitude: number) {
     this.logger.log('Returning mock pharmacy data as fallback');
-    
+
     // Create mock data with slight variations from the given coordinates
     return [
       {
@@ -280,4 +294,4 @@ export class PharmaciesService {
       },
     ];
   }
-} 
+}

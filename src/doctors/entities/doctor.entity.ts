@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { DoctorCategory } from './doctor-category.entity';
 import { DoctorPatient } from './doctor-patient.entity';
 import { User } from '../../users/entities/user.entity';
@@ -14,7 +22,7 @@ export class Doctor {
   @Column()
   lastName: string;
 
-  @ManyToOne(() => DoctorCategory, category => category.doctors)
+  @ManyToOne(() => DoctorCategory, (category) => category.doctors)
   category: DoctorCategory;
 
   @ManyToOne(() => User, { nullable: true })
@@ -68,7 +76,7 @@ export class Doctor {
   @Column('simple-array')
   availableSlots: Date[];
 
-  @OneToMany(() => DoctorPatient, doctorPatient => doctorPatient.doctor)
+  @OneToMany(() => DoctorPatient, (doctorPatient) => doctorPatient.doctor)
   patientRelations: DoctorPatient[];
 
   @CreateDateColumn()
@@ -76,4 +84,4 @@ export class Doctor {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

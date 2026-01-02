@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateDoctorAndCategoryTables1745600000000 implements MigrationInterface {
+export class CreateDoctorAndCategoryTables1745600000000
+  implements MigrationInterface
+{
   name = 'CreateDoctorAndCategoryTables1745600000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -73,4 +75,4 @@ export class CreateDoctorAndCategoryTables1745600000000 implements MigrationInte
     await queryRunner.query(`DROP TABLE "doctor_categories_closure"`);
     await queryRunner.query(`DROP TABLE "doctor_categories"`);
   }
-} 
+}

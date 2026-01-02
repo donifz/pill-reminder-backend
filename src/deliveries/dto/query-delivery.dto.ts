@@ -11,4 +11,4 @@ export class QueryDeliveryDto {
   @IsString()
   @IsOptional()
   region?: string;
-} 
+}

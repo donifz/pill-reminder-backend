@@ -37,7 +37,9 @@ export class CreateMedicineDto {
   @IsNotEmpty()
   barcode: string;
 
-  @ApiProperty({ description: 'UUID of the country where the medicine is available' })
+  @ApiProperty({
+    description: 'UUID of the country where the medicine is available',
+  })
   @IsUUID()
   countryId: string;
-} 
+}

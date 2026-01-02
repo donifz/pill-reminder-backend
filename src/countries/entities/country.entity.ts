@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Medicine } from '../../medicines/entities/medicine.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,7 +15,9 @@ export class Country {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ description: 'The ISO code of the country (e.g., US, GB, FR)' })
+  @ApiProperty({
+    description: 'The ISO code of the country (e.g., US, GB, FR)',
+  })
   @Column({ unique: true })
   isoCode: string;
 
@@ -16,8 +25,11 @@ export class Country {
   @Column()
   name: string;
 
-  @ApiProperty({ description: 'List of medicines available in this country', type: [Medicine] })
-  @OneToMany(() => Medicine, medicine => medicine.country)
+  @ApiProperty({
+    description: 'List of medicines available in this country',
+    type: [Medicine],
+  })
+  @OneToMany(() => Medicine, (medicine) => medicine.country)
   medicines: Medicine[];
 
   @ApiProperty({ description: 'The date when the country was created' })
@@ -27,4 +39,4 @@ export class Country {
   @ApiProperty({ description: 'The date when the country was last updated' })
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

@@ -12,4 +12,4 @@ export class DeliveriesService extends BaseService<Delivery> {
   ) {
     super(deliveryRepository);
   }
-} 
+}

@@ -30,4 +30,3 @@ export class CreateUserDto {
   @IsString()
   fcmToken?: string;
 }
-

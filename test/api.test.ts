@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.API_URL || 'https://medicine-reminder-backend.onrender.com';
+const API_URL =
+  process.env.API_URL || 'https://medicine-reminder-backend.onrender.com';
 
 describe('API Endpoints', () => {
   let authToken: string;
@@ -50,7 +51,7 @@ describe('API Endpoints', () => {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     expect(response.status).toBe(201);
@@ -93,7 +94,7 @@ describe('API Endpoints', () => {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     expect(response.status).toBe(200);
@@ -112,7 +113,7 @@ describe('API Endpoints', () => {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     expect(response.status).toBe(200);
@@ -121,11 +122,14 @@ describe('API Endpoints', () => {
 
   // Test deleting a medication
   test('DELETE /medications/:id', async () => {
-    const response = await axios.delete(`${API_URL}/medications/${medicationId}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
+    const response = await axios.delete(
+      `${API_URL}/medications/${medicationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
       },
-    });
+    );
 
     expect(response.status).toBe(200);
   });
@@ -139,10 +143,10 @@ describe('API Endpoints', () => {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     expect(response.status).toBe(200);
     expect(response.data).toHaveProperty('message');
   });
-}); 
+});

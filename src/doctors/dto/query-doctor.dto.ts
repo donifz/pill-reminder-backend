@@ -17,4 +17,4 @@ export class QueryDoctorDto extends PaginationDto {
   @IsUUID()
   @IsOptional()
   countryId?: string;
-} 
+}

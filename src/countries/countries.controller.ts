@@ -1,5 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { BaseController } from '../common/controllers/base.controller';
 import { Country } from './entities/country.entity';
 import { CreateCountryDto } from './dto/create-country.dto';
@@ -61,7 +78,10 @@ export class CountriesController extends BaseController<
     type: Country,
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @Post()
   async create(@Body() createCountryDto: CreateCountryDto) {
     return this.countriesService.create(createCountryDto);
@@ -78,7 +98,10 @@ export class CountriesController extends BaseController<
     type: Country,
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Country not found' })
   @Patch(':id')
   async update(
@@ -97,10 +120,13 @@ export class CountriesController extends BaseController<
     status: 200,
     description: 'The country has been successfully deleted',
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Country not found' })
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.countriesService.remove(id);
   }
-} 
+}

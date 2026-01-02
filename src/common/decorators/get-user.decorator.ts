@@ -1,10 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const GetUser = createParamDecorator(
-  (data, ctx: ExecutionContext) => {
-	
-    const request = ctx.switchToHttp().getRequest();
-	
-    return request.user; // must match what's returned from JwtStrategy
-  },
-);
+export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest();
+
+  return request.user; // must match what's returned from JwtStrategy
+});

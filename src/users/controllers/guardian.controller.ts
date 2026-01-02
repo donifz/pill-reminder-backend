@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Delete, Body, Param, UseGuards, Req, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  Logger,
+} from '@nestjs/common';
 import { GuardianService } from '../services/guardian.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
@@ -11,18 +21,12 @@ export class GuardianController {
   constructor(private readonly guardianService: GuardianService) {}
 
   @Post('invite')
-  async inviteGuardian(
-    @Req() req: Request,
-    @Body('email') email: string,
-  ) {
+  async inviteGuardian(@Req() req: Request, @Body('email') email: string) {
     return this.guardianService.inviteGuardian(req.user['id'], email);
   }
 
   @Post('accept/:token')
-  async acceptInvitation(
-    @Req() req: Request,
-    @Param('token') token: string,
-  ) {
+  async acceptInvitation(@Req() req: Request, @Param('token') token: string) {
     this.logger.log(`Accepting invitation with token: ${token}`);
     this.logger.log(`User ID: ${req.user['id']}`);
     return this.guardianService.acceptInvitation(token, req.user['id']);
@@ -45,4 +49,4 @@ export class GuardianController {
   ) {
     return this.guardianService.removeGuardian(req.user['id'], guardianId);
   }
-} 
+}

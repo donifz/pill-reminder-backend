@@ -1,4 +1,11 @@
-import { IsOptional, IsUUID, IsBoolean, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsUUID,
+  IsBoolean,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class QueryPharmacyMedicineDto {
@@ -12,7 +19,10 @@ export class QueryPharmacyMedicineDto {
   @IsOptional()
   medicineId?: string;
 
-  @ApiProperty({ description: 'Filter by delivery availability', required: false })
+  @ApiProperty({
+    description: 'Filter by delivery availability',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   deliveryAvailable?: boolean;
@@ -33,4 +43,4 @@ export class QueryPharmacyMedicineDto {
   @IsBoolean()
   @IsOptional()
   isAvailable?: boolean;
-} 
+}

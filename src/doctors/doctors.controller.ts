@@ -15,7 +15,13 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -93,7 +99,11 @@ export class DoctorsController {
   @Get(':id')
   @Public()
   @ApiOperation({ summary: 'Get a doctor by ID' })
-  @ApiResponse({ status: 200, description: 'Return the doctor with the specified ID.', type: Doctor })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the doctor with the specified ID.',
+    type: Doctor,
+  })
   @ApiResponse({ status: 404, description: 'Doctor not found.' })
   async getDoctorById(@Param('id', ParseUUIDPipe) id: string): Promise<Doctor> {
     return this.doctorsService.findDoctorById(id);
@@ -119,19 +129,28 @@ export class DoctorsController {
     photo?: Express.Multer.File,
   ) {
     // Convert FormData arrays and objects to proper types
-    if (createDoctorDto.languages && typeof createDoctorDto.languages === 'object') {
+    if (
+      createDoctorDto.languages &&
+      typeof createDoctorDto.languages === 'object'
+    ) {
       createDoctorDto.languages = Object.values(createDoctorDto.languages);
     }
-    if (createDoctorDto.location && typeof createDoctorDto.location === 'object') {
+    if (
+      createDoctorDto.location &&
+      typeof createDoctorDto.location === 'object'
+    ) {
       createDoctorDto.location = {
         latitude: Number(createDoctorDto.location.latitude),
         longitude: Number(createDoctorDto.location.longitude),
       };
     }
-    if (createDoctorDto.availableSlots && typeof createDoctorDto.availableSlots === 'object') {
-      createDoctorDto.availableSlots = Object.values(createDoctorDto.availableSlots).map(
-        (slot) => new Date(slot),
-      );
+    if (
+      createDoctorDto.availableSlots &&
+      typeof createDoctorDto.availableSlots === 'object'
+    ) {
+      createDoctorDto.availableSlots = Object.values(
+        createDoctorDto.availableSlots,
+      ).map((slot) => new Date(slot));
     }
 
     // Handle photo upload
@@ -145,7 +164,10 @@ export class DoctorsController {
 
     // Remove photo property from DTO
     const { photo: _, ...dtoWithoutPhoto } = createDoctorDto as any;
-    return this.doctorsService.createDoctor({ ...dtoWithoutPhoto, photoUrl }, photo);
+    return this.doctorsService.createDoctor(
+      { ...dtoWithoutPhoto, photoUrl },
+      photo,
+    );
   }
 
   @Admin()
@@ -170,19 +192,28 @@ export class DoctorsController {
     photo?: Express.Multer.File,
   ) {
     // Convert FormData arrays and objects to proper types
-    if (updateDoctorDto.languages && typeof updateDoctorDto.languages === 'object') {
+    if (
+      updateDoctorDto.languages &&
+      typeof updateDoctorDto.languages === 'object'
+    ) {
       updateDoctorDto.languages = Object.values(updateDoctorDto.languages);
     }
-    if (updateDoctorDto.location && typeof updateDoctorDto.location === 'object') {
+    if (
+      updateDoctorDto.location &&
+      typeof updateDoctorDto.location === 'object'
+    ) {
       updateDoctorDto.location = {
         latitude: Number(updateDoctorDto.location.latitude),
         longitude: Number(updateDoctorDto.location.longitude),
       };
     }
-    if (updateDoctorDto.availableSlots && typeof updateDoctorDto.availableSlots === 'object') {
-      updateDoctorDto.availableSlots = Object.values(updateDoctorDto.availableSlots).map(
-        (slot) => new Date(slot),
-      );
+    if (
+      updateDoctorDto.availableSlots &&
+      typeof updateDoctorDto.availableSlots === 'object'
+    ) {
+      updateDoctorDto.availableSlots = Object.values(
+        updateDoctorDto.availableSlots,
+      ).map((slot) => new Date(slot));
     }
 
     // Handle photo upload
@@ -198,7 +229,11 @@ export class DoctorsController {
 
     // Remove photo property from DTO
     const { photo: _, ...dtoWithoutPhoto } = updateDoctorDto as any;
-    return this.doctorsService.updateDoctor(id, { ...dtoWithoutPhoto, photoUrl }, photo);
+    return this.doctorsService.updateDoctor(
+      id,
+      { ...dtoWithoutPhoto, photoUrl },
+      photo,
+    );
   }
 
   @Admin()
@@ -222,13 +257,19 @@ export class DoctorsController {
     if (icon) {
       iconUrl = await this.fileUploadService.uploadCategoryIcon(icon);
     }
-    return this.doctorsService.createCategory({ ...createCategoryDto, iconUrl }, icon);
+    return this.doctorsService.createCategory(
+      { ...createCategoryDto, iconUrl },
+      icon,
+    );
   }
 
   @Get('users/:userId/data')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Get user data for doctor profile creation' })
-  @ApiResponse({ status: 200, description: 'User data retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'User data retrieved successfully.',
+  })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async getUserDataForDoctor(@Param('userId') userId: string) {
     return this.doctorsService.getUserDataForDoctor(userId);
@@ -237,7 +278,10 @@ export class DoctorsController {
   @Post('users/:userId')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a doctor profile from a user' })
-  @ApiResponse({ status: 201, description: 'Doctor profile created successfully.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Doctor profile created successfully.',
+  })
   @ApiResponse({ status: 400, description: 'User is already a doctor.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async createDoctorFromUser(
@@ -246,4 +290,4 @@ export class DoctorsController {
   ) {
     return this.doctorsService.createDoctorFromUser(userId, createDoctorDto);
   }
-} 
+}

@@ -16,8 +16,12 @@ export class PharmacyMedicinesService extends BaseService<PharmacyMedicine> {
     super(pharmacyMedicineRepository);
   }
 
-  async create(createPharmacyMedicineDto: CreatePharmacyMedicineDto): Promise<PharmacyMedicine> {
-    const pharmacyMedicine = this.pharmacyMedicineRepository.create(createPharmacyMedicineDto);
+  async create(
+    createPharmacyMedicineDto: CreatePharmacyMedicineDto,
+  ): Promise<PharmacyMedicine> {
+    const pharmacyMedicine = this.pharmacyMedicineRepository.create(
+      createPharmacyMedicineDto,
+    );
     return await this.pharmacyMedicineRepository.save(pharmacyMedicine);
   }
 
@@ -28,7 +32,7 @@ export class PharmacyMedicinesService extends BaseService<PharmacyMedicine> {
     limit = 10,
   ) {
     const where: FindOptionsWhere<PharmacyMedicine> = {};
-    
+
     if (query.pharmacyId) {
       where.pharmacy = { id: query.pharmacyId };
     }
@@ -43,14 +47,21 @@ export class PharmacyMedicinesService extends BaseService<PharmacyMedicine> {
   }
 
   async findOne(id: string): Promise<PharmacyMedicine> {
-    const pharmacyMedicine = await this.pharmacyMedicineRepository.findOne({ where: { id } });
+    const pharmacyMedicine = await this.pharmacyMedicineRepository.findOne({
+      where: { id },
+    });
     if (!pharmacyMedicine) {
-      throw new NotFoundException(`Pharmacy medicine with ID "${id}" not found`);
+      throw new NotFoundException(
+        `Pharmacy medicine with ID "${id}" not found`,
+      );
     }
     return pharmacyMedicine;
   }
 
-  async update(id: string, updatePharmacyMedicineDto: UpdatePharmacyMedicineDto): Promise<PharmacyMedicine> {
+  async update(
+    id: string,
+    updatePharmacyMedicineDto: UpdatePharmacyMedicineDto,
+  ): Promise<PharmacyMedicine> {
     const pharmacyMedicine = await this.findOne(id);
     Object.assign(pharmacyMedicine, updatePharmacyMedicineDto);
     return await this.pharmacyMedicineRepository.save(pharmacyMedicine);
@@ -59,7 +70,9 @@ export class PharmacyMedicinesService extends BaseService<PharmacyMedicine> {
   async remove(id: string): Promise<void> {
     const result = await this.pharmacyMedicineRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Pharmacy medicine with ID "${id}" not found`);
+      throw new NotFoundException(
+        `Pharmacy medicine with ID "${id}" not found`,
+      );
     }
   }
-} 
+}

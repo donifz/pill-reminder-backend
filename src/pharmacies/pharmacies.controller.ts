@@ -11,7 +11,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PharmaciesService } from './pharmacies.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
 import { QueryPharmacyDto } from './dto/query-pharmacy.dto';
@@ -31,19 +37,27 @@ export class PharmaciesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new pharmacy (Admin only)' })
-  @ApiResponse({ status: 201, description: 'The pharmacy has been successfully created.', type: Pharmacy })
+  @ApiResponse({
+    status: 201,
+    description: 'The pharmacy has been successfully created.',
+    type: Pharmacy,
+  })
   @Post()
   create(@Body() createPharmacyDto: CreatePharmacyDto) {
     return this.pharmaciesService.create(createPharmacyDto);
   }
 
   @ApiOperation({ summary: 'Get all pharmacies' })
-  @ApiResponse({ status: 200, description: 'Return all pharmacies.', type: [Pharmacy] })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all pharmacies.',
+    type: [Pharmacy],
+  })
   @Get()
   @Public()
   async findAll(@Query() query: QueryPharmacyDto) {
     const items = await this.pharmaciesService.findAll(query);
-    const pharmacies = items.map(pharmacy => ({
+    const pharmacies = items.map((pharmacy) => ({
       id: pharmacy.id,
       name: pharmacy.name,
       address: pharmacy.address,
@@ -61,11 +75,26 @@ export class PharmaciesController {
   }
 
   @ApiOperation({ summary: 'Get nearby pharmacies' })
-  @ApiQuery({ name: 'latitude', required: true, type: 'number', description: 'Latitude coordinate' })
-  @ApiQuery({ name: 'longitude', required: true, type: 'number', description: 'Longitude coordinate' })
-  @ApiQuery({ name: 'radius', required: false, type: 'number', description: 'Search radius in meters' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiQuery({
+    name: 'latitude',
+    required: true,
+    type: 'number',
+    description: 'Latitude coordinate',
+  })
+  @ApiQuery({
+    name: 'longitude',
+    required: true,
+    type: 'number',
+    description: 'Longitude coordinate',
+  })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    type: 'number',
+    description: 'Search radius in meters',
+  })
+  @ApiResponse({
+    status: 200,
     description: 'Return list of nearby pharmacies',
     schema: {
       type: 'array',
@@ -82,23 +111,26 @@ export class PharmaciesController {
                 type: 'object',
                 properties: {
                   lat: { type: 'number' },
-                  lng: { type: 'number' }
-                }
-              }
-            }
+                  lng: { type: 'number' },
+                },
+              },
+            },
           },
           rating: { type: 'number' },
           opening_hours: {
             type: 'object',
             properties: {
-              open_now: { type: 'boolean' }
-            }
-          }
-        }
-      }
-    }
+              open_now: { type: 'boolean' },
+            },
+          },
+        },
+      },
+    },
   })
-  @ApiResponse({ status: 400, description: 'Bad Request - Invalid input parameters' })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid input parameters',
+  })
   @Get('nearby')
   @Public()
   async getNearbyPharmacies(
@@ -106,7 +138,9 @@ export class PharmaciesController {
     @Query('longitude') longitudeStr: string,
     @Query('radius') radiusStr?: string,
   ) {
-    console.log(`Received latitude: ${latitudeStr}, longitude: ${longitudeStr}, radius: ${radiusStr}`);
+    console.log(
+      `Received latitude: ${latitudeStr}, longitude: ${longitudeStr}, radius: ${radiusStr}`,
+    );
     try {
       const latitude = parseFloat(latitudeStr);
       const longitude = parseFloat(longitudeStr);
@@ -134,7 +168,11 @@ export class PharmaciesController {
   }
 
   @ApiOperation({ summary: 'Get a pharmacy by id' })
-  @ApiResponse({ status: 200, description: 'Return the pharmacy.', type: Pharmacy })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the pharmacy.',
+    type: Pharmacy,
+  })
   @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -144,20 +182,30 @@ export class PharmaciesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update a pharmacy (Admin only)' })
-  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully updated.', type: Pharmacy })
+  @ApiResponse({
+    status: 200,
+    description: 'The pharmacy has been successfully updated.',
+    type: Pharmacy,
+  })
   @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePharmacyDto: UpdatePharmacyDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePharmacyDto: UpdatePharmacyDto,
+  ) {
     return this.pharmaciesService.update(id, updatePharmacyDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a pharmacy (Admin only)' })
-  @ApiResponse({ status: 200, description: 'The pharmacy has been successfully deleted.' })
+  @ApiResponse({
+    status: 200,
+    description: 'The pharmacy has been successfully deleted.',
+  })
   @ApiResponse({ status: 404, description: 'Pharmacy not found.' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.pharmaciesService.remove(id);
   }
-} 
+}

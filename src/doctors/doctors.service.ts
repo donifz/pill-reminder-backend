@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../common/services/base.service';
@@ -89,7 +93,10 @@ export class DoctorsService extends BaseService<Doctor> {
   }
 
   // Doctor methods
-  async createDoctor(createDoctorDto: CreateDoctorDto, photo?: Express.Multer.File): Promise<Doctor> {
+  async createDoctor(
+    createDoctorDto: CreateDoctorDto,
+    photo?: Express.Multer.File,
+  ): Promise<Doctor> {
     const category = await this.categoryRepository.findOne({
       where: { id: createDoctorDto.categoryId },
     });
@@ -121,7 +128,10 @@ export class DoctorsService extends BaseService<Doctor> {
       throw new NotFoundException('Doctor not found');
     }
 
-    if (updateDoctorDto.categoryId && updateDoctorDto.categoryId !== doctor.category.id) {
+    if (
+      updateDoctorDto.categoryId &&
+      updateDoctorDto.categoryId !== doctor.category.id
+    ) {
       const category = await this.categoryRepository.findOne({
         where: { id: updateDoctorDto.categoryId },
       });
@@ -174,14 +184,19 @@ export class DoctorsService extends BaseService<Doctor> {
       phone: doctor.contactPhone,
       specialization: doctor.specialization,
       experience: doctor.yearsExperience,
-      rating: doctor.rating !== undefined && doctor.rating !== null ? Number(doctor.rating) : 0,
+      rating:
+        doctor.rating !== undefined && doctor.rating !== null
+          ? Number(doctor.rating)
+          : 0,
       city: doctor.city || '',
       country: 'Unknown', // You might want to add country field to the entity
       image: doctor.photoUrl,
-      category: doctor.category ? {
-        id: doctor.category.id,
-        name: doctor.category.name,
-      } : null,
+      category: doctor.category
+        ? {
+            id: doctor.category.id,
+            name: doctor.category.name,
+          }
+        : null,
       bio: doctor.bio,
       languages: doctor.languages,
       consultationFee: doctor.consultationFee,
@@ -201,12 +216,7 @@ export class DoctorsService extends BaseService<Doctor> {
     });
   }
 
-  async findAll(
-    query: QueryDoctorDto,
-    order = {},
-    page = 1,
-    limit = 10,
-  ) {
+  async findAll(query: QueryDoctorDto, order = {}, page = 1, limit = 10) {
     // Use pagination parameters from query if provided
     const currentPage = query.page || page;
     const currentLimit = query.limit || limit;
@@ -218,29 +228,29 @@ export class DoctorsService extends BaseService<Doctor> {
       .leftJoinAndSelect('doctor.category', 'category');
 
     if (query.name) {
-      queryBuilder.where('doctor.firstName LIKE :name OR doctor.lastName LIKE :name', { name: `%${query.name}%` });
+      queryBuilder.where(
+        'doctor.firstName LIKE :name OR doctor.lastName LIKE :name',
+        { name: `%${query.name}%` },
+      );
     }
-    
+
     if (query.specialization) {
-      queryBuilder.andWhere('doctor.specialization LIKE :specialization', { specialization: `%${query.specialization}%` });
+      queryBuilder.andWhere('doctor.specialization LIKE :specialization', {
+        specialization: `%${query.specialization}%`,
+      });
     }
 
     const [items, total] = await queryBuilder
       .skip(skip)
       .take(currentLimit)
       .getManyAndCount();
-    
+
     return { items, total };
   }
 
-  async searchDoctors(
-    query: QueryDoctorDto,
-    order = {},
-    page = 1,
-    limit = 10,
-  ) {
+  async searchDoctors(query: QueryDoctorDto, order = {}, page = 1, limit = 10) {
     const where: any = {};
-    
+
     if (query.name) {
       where.name = query.name;
     }
@@ -261,14 +271,17 @@ export class DoctorsService extends BaseService<Doctor> {
     });
 
     // Transform the data to match frontend expectations
-    const transformedItems = items.map(doctor => ({
+    const transformedItems = items.map((doctor) => ({
       id: doctor.id,
       name: `${doctor.firstName} ${doctor.lastName}`,
       email: doctor.contactEmail,
       phone: doctor.contactPhone,
       specialization: doctor.specialization,
       experience: doctor.yearsExperience,
-      rating: doctor.rating !== undefined && doctor.rating !== null ? Number(doctor.rating) : 0,
+      rating:
+        doctor.rating !== undefined && doctor.rating !== null
+          ? Number(doctor.rating)
+          : 0,
       city: doctor.city || '',
       country: 'Unknown', // You might want to add country field to the entity
       image: doctor.photoUrl,
@@ -281,9 +294,12 @@ export class DoctorsService extends BaseService<Doctor> {
     return { items: transformedItems, total };
   }
 
-  async createDoctorFromUser(userId: string, createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+  async createDoctorFromUser(
+    userId: string,
+    createDoctorDto: CreateDoctorDto,
+  ): Promise<Doctor> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -317,7 +333,7 @@ export class DoctorsService extends BaseService<Doctor> {
       lastName: user.name.split(' ').slice(1).join(' ') || '',
       contactEmail: user.email,
       city: user.city || '',
-      
+
       // Use provided doctor-specific data
       specialization: createDoctorDto.specialization,
       yearsExperience: createDoctorDto.yearsExperience,
@@ -329,7 +345,7 @@ export class DoctorsService extends BaseService<Doctor> {
       clinicAddress: createDoctorDto.clinicAddress,
       location: createDoctorDto.location,
       availableSlots: createDoctorDto.availableSlots || [],
-      
+
       // Relationships
       category,
       user,
@@ -341,7 +357,7 @@ export class DoctorsService extends BaseService<Doctor> {
 
   async getUserDataForDoctor(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -365,4 +381,4 @@ export class DoctorsService extends BaseService<Doctor> {
       userId: user.id,
     };
   }
-} 
+}

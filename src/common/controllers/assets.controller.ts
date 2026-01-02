@@ -8,10 +8,13 @@ export class AssetsController {
   private readonly uploadsDir = path.join(process.cwd(), 'uploads');
 
   @Get('categories/:filename')
-  async serveCategory(@Param('filename') filename: string, @Res() res: Response) {
+  async serveCategory(
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
     const filePath = path.join(this.uploadsDir, 'categories', filename);
     console.log('Attempting to serve file:', filePath);
-    
+
     if (!fs.existsSync(filePath)) {
       console.log('File not found:', filePath);
       throw new NotFoundException(`File ${filename} not found`);
@@ -24,7 +27,7 @@ export class AssetsController {
   async serveDoctor(@Param('filename') filename: string, @Res() res: Response) {
     const filePath = path.join(this.uploadsDir, 'doctors', filename);
     console.log('Attempting to serve file:', filePath);
-    
+
     if (!fs.existsSync(filePath)) {
       console.log('File not found:', filePath);
       throw new NotFoundException(`File ${filename} not found`);
@@ -32,4 +35,4 @@ export class AssetsController {
 
     return res.sendFile(filePath);
   }
-} 
+}

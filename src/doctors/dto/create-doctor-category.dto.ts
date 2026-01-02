@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsUUID } from "class-validator";
+import { IsString, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateDoctorCategoryDto {
   @ApiProperty({ description: 'The name of the doctor category' })
   @IsString()
   name: string;
 
-  @ApiProperty({ description: 'The description of the doctor category', required: false })
+  @ApiProperty({
+    description: 'The description of the doctor category',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   description?: string;
@@ -19,4 +22,4 @@ export class CreateDoctorCategoryDto {
   @IsUUID()
   @IsOptional()
   parentId?: string;
-} 
+}
