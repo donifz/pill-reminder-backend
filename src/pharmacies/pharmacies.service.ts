@@ -53,7 +53,13 @@ export class PharmaciesService {
     this.googlePlacesApiKey = this.configService.get<string>(
       'GOOGLE_PLACES_API_KEY',
     );
-    this.logger.log(`API Key configured: ${this.googlePlacesApiKey.substring(0, 5)}...`);
+    if (this.googlePlacesApiKey) {
+      this.logger.log(
+        `API Key configured: ${this.googlePlacesApiKey.substring(0, 5)}...`,
+      );
+    } else {
+      this.logger.warn('GOOGLE_PLACES_API_KEY is not set');
+    }
   }
 
   async create(createPharmacyDto: CreatePharmacyDto) {
