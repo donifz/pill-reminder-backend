@@ -11,6 +11,7 @@ import { CreateMedicationDto } from './dto/create-medication.dto';
 import { UpdateMedicationDto } from './dto/update-medication.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Guardian } from 'src/users/entities/guardian.entity';
+import { SubscriptionTier } from 'src/common/enums/subscription-tier.enum';
 
 @Injectable()
 export class MedicationsService {
@@ -21,9 +22,20 @@ export class MedicationsService {
     private medicationsRepository: Repository<Medication>,
     @InjectRepository(Guardian)
     private guardianRepository: Repository<Guardian>,
-  ) {}
+  ) { }
 
-  create(dto: CreateMedicationDto, user: User) {
+  async create(dto: CreateMedicationDto, user: User) {
+    if (user.subscriptionTier === SubscriptionTier.FREE) {
+      const count = await this.medicationsRepository.count({
+        where: { user: { id: user.id } },
+      });
+      if (count >= 3) {
+        throw new ForbiddenException(
+          'You have reached the maximum number of medications for the Free plan. Please upgrade to Premium to add more.',
+        );
+      }
+    }
+
     const medication = this.medicationsRepository.create({
       ...dto,
       takenDates: [],

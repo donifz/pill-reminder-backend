@@ -11,6 +11,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Role } from '../../common/enums/role.enum';
+import { SubscriptionTier } from '../../common/enums/subscription-tier.enum';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import { DoctorPatient } from '../../doctors/entities/doctor-patient.entity';
 
@@ -34,6 +35,13 @@ export class User {
     default: Role.USER,
   })
   role: Role;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionTier,
+    default: SubscriptionTier.FREE,
+  })
+  subscriptionTier: SubscriptionTier;
 
   @Column({ nullable: true })
   fcmToken: string;

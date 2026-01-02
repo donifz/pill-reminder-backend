@@ -2,12 +2,14 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Guardian } from '../entities/guardian.entity';
+import { SubscriptionTier } from 'src/common/enums/subscription-tier.enum';
 import { randomBytes } from 'crypto';
 
 @Injectable()
@@ -19,7 +21,7 @@ export class GuardianService {
     private userRepository: Repository<User>,
     @InjectRepository(Guardian)
     private guardianRepository: Repository<Guardian>,
-  ) {}
+  ) { }
 
   async inviteGuardian(
     userId: string,
@@ -28,6 +30,17 @@ export class GuardianService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    if (user.subscriptionTier === SubscriptionTier.FREE) {
+      const guardiansCount = await this.guardianRepository.count({
+        where: { user: { id: userId } },
+      });
+      if (guardiansCount >= 1) {
+        throw new ForbiddenException(
+          'You have reached the maximum number of guardians for the Free plan. Please upgrade to Premium to add more.',
+        );
+      }
     }
 
     const guardian = await this.userRepository.findOne({
